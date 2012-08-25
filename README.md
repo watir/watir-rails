@@ -15,19 +15,19 @@ Add this code to your Gemfile:
 Just use Watir like you've always done in your requests/integration tests:
 
     browser = Watir::Browser.new
-    browser.goto home_path # always use the *_path methods instead of the *_url methods!
+    browser.goto home_path
     browser.text_field(name: "first").set "Jarmo"
     browser.text_field(name: "last").set  "Pertman"
     browser.button(name: "sign_in").click
 
 ## Limitations
 
-* Watir-Rails works currently only with [Watir-WebDriver](http://github.com/watir/watir-webdriver) and not with
+* Watir-Rails works currently only with the [Watir-WebDriver](http://github.com/watir/watir-webdriver) and not with
 the [Watir-Classic](http://github.com/watir/watir-classic) due to the problems of running a server
 in the separate thread when WIN32OLE is used.
 The problem is probably caused by the fact that [WIN32OLE overwrites Thread#initialize](https://github.com/ruby/ruby/blob/trunk/test/ruby/test_thread.rb#L607).
 
-* When using Rails path/url helpers in your tests then always use path instead of url methods.
+* When using Rails path/url helpers in your tests then always use path instead of url methods, because latter won't work!
 
 ## License
 
