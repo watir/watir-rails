@@ -4,9 +4,9 @@ require File.expand_path('../lib/watir/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Jarmo Pertman"]
   gem.email         = ["jarmo.p@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
-  gem.homepage      = ""
+  gem.description   = %q{Add support for Watir (http://github.com/watir/watir) in Rails.}
+  gem.summary       = %q{Add support for Watir (http://github.com/watir/watir) in Rails.}
+  gem.homepage      = "http://github.com/watir/watir-rails"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
