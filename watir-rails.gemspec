@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/watir-rails/version', __FILE__)
+require File.expand_path('../lib/watir/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ["Jarmo Pertman"]
@@ -14,4 +14,8 @@ Gem::Specification.new do |gem|
   gem.name          = "watir-rails"
   gem.require_paths = ["lib"]
   gem.version       = Watir::Rails::VERSION
+
+  gem.add_dependency "rack"
+  gem.add_dependency "rails"
+  gem.add_dependency "watir"
 end
