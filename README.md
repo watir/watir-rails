@@ -1,24 +1,21 @@
 # Watir::Rails
 
-TODO: Write a gem description
+This gem adds the [Watir](http://github.com/watir/watir) usage support when writing integration tests in Rails.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add this code to your Gemfile:
 
-    gem 'watir-rails'
+    group :test do
+      gem 'watir-rails'
+    end
 
-And then execute:
+## Limitations
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install watir-rails
-
-## Usage
-
-TODO: Write usage instructions here
+watir-rails works currently only with [Watir-WebDriver](http://github.com/watir/watir-webdriver) and not with
+the [Watir-Classic](http://github.com/watir/watir-classic) due to the problems of running a server
+in the separate thread when WIN32OLE is used.
+The problem is probably caused by the fact that [WIN32OLE overwrites Thread#initialize](https://github.com/ruby/ruby/blob/trunk/test/ruby/test_thread.rb#L607).
 
 ## Contributing
 
