@@ -1,6 +1,7 @@
 require 'uri'
 require 'net/http'
 require 'rack'
+require 'watir-webdriver'
 require File.expand_path("browser.rb", File.dirname(__FILE__))
 
 module Watir

@@ -17,5 +17,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "rack"
   gem.add_dependency "rails"
-  gem.add_dependency "watir"
+  gem.add_dependency "watir-webdriver"
 end
