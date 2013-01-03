@@ -6,19 +6,23 @@ This gem adds the [Watir](http://github.com/watir/watir) usage support when writ
 
 Add this code to your Gemfile:
 
-    group :test do
-      gem 'watir-rails'
-    end
+````ruby
+group :test do
+  gem 'watir-rails'
+end
+````
 
 ## Usage
 
 Just use Watir like you've always done in your requests/integration tests:
 
-    browser = Watir::Browser.new
-    browser.goto home_path
-    browser.text_field(name: "first").set "Jarmo"
-    browser.text_field(name: "last").set  "Pertman"
-    browser.button(name: "sign_in").click
+````ruby
+browser = Watir::Browser.new
+browser.goto home_path
+browser.text_field(name: "first").set "Jarmo"
+browser.text_field(name: "last").set  "Pertman"
+browser.button(name: "sign_in").click
+````
 
 ## Limitations
 
