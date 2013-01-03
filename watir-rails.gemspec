@@ -18,4 +18,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rack"
   gem.add_dependency "rails"
   gem.add_dependency "watir-webdriver"
+
+  gem.add_development_dependency "yard"
+  gem.add_development_dependency "redcarpet"
 end

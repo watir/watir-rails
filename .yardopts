@@ -1,0 +1,6 @@
+--readme README.md
+--no-private
+--hide-void-return
+--title "Watir-Rails"
+--files LICENSE
+--default-return ""

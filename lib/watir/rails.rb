@@ -6,6 +6,7 @@ require File.expand_path("browser.rb", File.dirname(__FILE__))
 
 module Watir
   class Rails
+    # @private
     class Middleware
       def initialize(app)
         @app = app
@@ -24,6 +25,8 @@ module Watir
       private :new
       attr_reader :port, :middleware
 
+      # Start the Rails server for tests.
+      # Will be called automatically by {Watir::Browser#initialize}.
       def boot
         unless running?
           @middleware = Middleware.new(app)
@@ -39,10 +42,16 @@ module Watir
         raise "Rack application timed out during boot"
       end
 
+      # Host for Rails app under test.
+      #
+      # @return [String] Host for Rails app for testing.
       def host
         "127.0.0.1"
       end
 
+      # Check if Rails app under test is running.
+      #
+      # @return [Boolean] true when Rails app under test is running, false otherwise.
       def running?
         return false if @server_thread && @server_thread.join(0)
 
@@ -55,6 +64,9 @@ module Watir
         return false
       end
 
+      # Rails app under test.
+      #
+      # @return [Object] Rails Rack app.
       def app
         @app ||= Rack::Builder.new do
           map "/" do
