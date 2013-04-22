@@ -42,10 +42,25 @@ module Watir
         raise "Rack application timed out during boot"
       end
 
-      # Host for Rails app under test.
+      # Host for Rails app under test. When not set via {.host=} then
+      # {.local_host} is used.
       #
-      # @return [String] Host for Rails app for testing.
+      # @return [String] Host for Rails app under test.
       def host
+        @host || local_host
+      end
+
+      # Set host for Rails app. Will be used by {Browser#goto} method.
+      #
+      # @param [String] host host to use when using {Browser#goto}.
+      def host=(host)
+        @host = host
+      end
+
+      # Local host for Rails app under test.
+      #
+      # @return [String] Local host with the value of "127.0.0.1".
+      def local_host
         "127.0.0.1"
       end
 
@@ -55,7 +70,7 @@ module Watir
       def running?
         return false if @server_thread && @server_thread.join(0)
 
-        res = Net::HTTP.start(host, @port) { |http| http.get('/__identify__') }
+        res = Net::HTTP.start(local_host, @port) { |http| http.get('/__identify__') }
 
         if res.is_a?(Net::HTTPSuccess) or res.is_a?(Net::HTTPRedirection)
           return res.body == @app.object_id.to_s
@@ -83,7 +98,7 @@ module Watir
       private
 
       def find_available_port
-        server = TCPServer.new('127.0.0.1', 0)
+        server = TCPServer.new(local_host, 0)
         server.addr[1]
       ensure
         server.close if server
