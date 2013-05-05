@@ -9,8 +9,10 @@ module Watir
     def initialize(*args)
       Rails.boot
       original_initialize *args
+      @host = Rails.host
     end
 
+    attr_accessor :host
     # @private
     alias_method :original_goto, :goto
 
@@ -25,7 +27,7 @@ module Watir
     #
     # @param [String] url URL to be navigated to.
     def goto(url)
-      url = "http://#{Rails.host}:#{Rails.port}#{url}" unless url =~ %r{^https?://}i || url == "about:blank"
+      url = "http://#{@host}:#{Rails.port}#{url}" unless url =~ %r{^https?://}i || url == "about:blank"
       original_goto url
     end
   end
