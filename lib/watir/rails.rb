@@ -8,6 +8,8 @@ module Watir
   class Rails
     # @private
     class Middleware
+      attr_reader :error
+
       def initialize(app)
         @app = app
       end
@@ -16,7 +18,11 @@ module Watir
         if env["PATH_INFO"] == "/__identify__"
           [200, {}, [@app.object_id.to_s]]
         else
-          @app.call(env)
+          begin
+            @app.call(env)
+          rescue => e
+            @error = e
+          end
         end
       end
     end
@@ -64,6 +70,13 @@ module Watir
         "127.0.0.1"
       end
 
+      # Error rescued by middleware.
+      #
+      # @return [Exception or NilClass]
+      def error
+        @middleware.error
+      end
+
       # Check if Rails app under test is running.
       #
       # @return [Boolean] true when Rails app under test is running, false otherwise.
@@ -86,7 +99,7 @@ module Watir
         @app ||= Rack::Builder.new do
           map "/" do
             if ::Rails.version.to_f >= 3.0
-              run ::Rails.application  
+              run ::Rails.application
             else # Rails 2
               use ::Rails::Rack::Static
               run ActionController::Dispatcher.new

@@ -24,6 +24,20 @@ browser.text_field(name: "last").set  "Pertman"
 browser.button(name: "sign_in").click
 ````
 
+### Catch exceptions
+
+If you want to raise your Rails application exceptions, you should do the following.
+
+1. Set `config.action_dispatch.show_exceptions` to `false` in `config/environments/test.rb`.
+2. Add checker to Watir which raises error:
+
+```ruby
+# assuming @browser is a Watir::Browser instance
+@browser.add_checker do
+  raise Watir::Rails.error if Watir::Rails.error
+end
+```
+
 ## Limitations
 
 * Watir-Rails works currently only with the [Watir-WebDriver](http://github.com/watir/watir-webdriver) and not with
