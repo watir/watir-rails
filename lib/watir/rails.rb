@@ -63,15 +63,15 @@ module Watir
       # @return [Boolean] true if exceptions should be ignored, false otherwise.
       def ignore_exceptions?
         unless @ignore_exceptions
-          show = if legacy_rails?
+          show_exceptions = if legacy_rails?
                    ::Rails.configuration.action_dispatch.show_exceptions
                  else
                    ::Rails.application.config.action_dispatch.show_exceptions
                  end
 
-          if show
+          if show_exceptions
             warn '[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.'
-            @ignore_exceptions = false
+            @ignore_exceptions = true
           end
         end
 
