@@ -10,7 +10,7 @@ module Watir
     class << self
       private :new
       attr_reader :port, :middleware
-      attr_writer :catch_exceptions
+      attr_writer :ignore_exceptions
 
       # Start the Rails server for tests.
       # Will be called automatically by {Watir::Browser#initialize}.
@@ -58,12 +58,11 @@ module Watir
         @middleware.error
       end
 
-      # Check if exception catcher is enabled.
+      # Check if Rails exceptions should be ignored.
       #
-      # @return [Boolean] true if exception catcher is and can be enabled, false otherwise.
-      def catch_exceptions
-        @catch_exceptions = true if @catch_exceptions.nil?
-        if @catch_exceptions
+      # @return [Boolean] true if exceptions should be ignored, false otherwise.
+      def ignore_exceptions?
+        unless @ignore_exceptions
           # get shown_exceptions configuration from Rails
           show = if legacy_rails?
                    ::Rails.configuration.action_dispatch.show_exceptions
@@ -73,13 +72,12 @@ module Watir
 
           if show
             warn '[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.'
-            @catch_exceptions = false
+            @ignore_exceptions = false
           end
         end
 
-        @catch_exceptions
+        !!@ignore_exceptions
       end
-      alias_method :catch_exceptions?, :catch_exceptions
 
       # Check if Rails app under test is running.
       #

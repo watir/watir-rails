@@ -24,16 +24,16 @@ browser.text_field(name: "last").set  "Pertman"
 browser.button(name: "sign_in").click
 ````
 
-### Catch exceptions
+### Ignore exceptions
 
-By default, exceptions thrown by application will be raised in your tests.
+By default, exceptions raised by Rails application will be re-raised in your tests.
 
 Please, note that it only happens if `config.action_dispatch.show_exceptions` is set to `false` in `config/environments/test.rb` (or any other environment you use it tests). If it is set to `true`, watir-rails will automatically disable exception catcher.
 
-You can also disable exception catcher manually:
+You can tell watir-rails to ignore exceptions:
 
 ```ruby
-Watir::Rails.catch_exceptions = false
+Watir::Rails.ignore_exceptions = false
 ```
 
 ## Limitations

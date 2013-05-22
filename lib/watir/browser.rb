@@ -9,7 +9,7 @@ module Watir
     def initialize(*args)
       Rails.boot
       original_initialize *args
-      add_checker { Rails.error and raise Rails.error } if Rails.catch_exceptions?
+      add_checker { Rails.error and raise Rails.error } unless Rails.ignore_exceptions?
     end
 
     # @private
