@@ -26,7 +26,7 @@ module Watir
           Timeout.timeout(60) { @server_thread.join(0.1) until running? }
         end
       rescue TimeoutError
-        raise "Rack application timed out during boot"
+        raise "Rails Rack application timed out during boot"
       end
 
       # Host for Rails app under test. When not set via {.host=} then
@@ -51,19 +51,18 @@ module Watir
         "127.0.0.1"
       end
 
-      # Error rescued by middleware.
+      # Error catched by the middleware.
       #
       # @return [Exception or NilClass]
       def error
         @middleware.error
       end
 
-      # Check if Rails exceptions should be ignored.
+      # Check if Rails exceptions should be ignored. Defaults to false.
       #
       # @return [Boolean] true if exceptions should be ignored, false otherwise.
       def ignore_exceptions?
         unless @ignore_exceptions
-          # get shown_exceptions configuration from Rails
           show = if legacy_rails?
                    ::Rails.configuration.action_dispatch.show_exceptions
                  else
