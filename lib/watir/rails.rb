@@ -51,7 +51,7 @@ module Watir
         "127.0.0.1"
       end
 
-      # Error catched by the middleware.
+      # Error rescued by the middleware.
       #
       # @return [Exception or NilClass]
       def error
