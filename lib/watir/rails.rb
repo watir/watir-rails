@@ -65,10 +65,10 @@ module Watir
         @catch_exceptions = true if @catch_exceptions.nil?
         if @catch_exceptions
           # get shown_exceptions configuration from Rails
-          show = if rails_version == 3
-                   ::Rails.application.config.action_dispatch.show_exceptions
-                 else
+          show = if legacy_rails?
                    ::Rails.configuration.action_dispatch.show_exceptions
+                 else
+                   ::Rails.application.config.action_dispatch.show_exceptions
                  end
 
           if show
@@ -100,14 +100,14 @@ module Watir
       #
       # @return [Object] Rails Rack app.
       def app
-        version = rails_version
+        legacy = legacy_rails?
         @app ||= Rack::Builder.new do
           map "/" do
-            if version == 3
-              run ::Rails.application
-            else
+            if legacy
               use ::Rails::Rack::Static
               run ActionController::Dispatcher.new
+            else
+              run ::Rails.application
             end
           end
         end.to_app
@@ -133,12 +133,8 @@ module Watir
         end
       end
 
-      def rails_version
-        if ::Rails.version.to_f >= 3.0
-          3
-        else
-          2
-        end
+      def legacy_rails?
+        ::Rails.version.to_f < 3.0
       end
 
     end
