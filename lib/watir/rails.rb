@@ -3,27 +3,14 @@ require 'net/http'
 require 'rack'
 require 'watir-webdriver'
 require File.expand_path("browser.rb", File.dirname(__FILE__))
+require File.expand_path("rails/middleware.rb", File.dirname(__FILE__))
 
 module Watir
   class Rails
-    # @private
-    class Middleware
-      def initialize(app)
-        @app = app
-      end
-
-      def call(env)
-        if env["PATH_INFO"] == "/__identify__"
-          [200, {}, [@app.object_id.to_s]]
-        else
-          @app.call(env)
-        end
-      end
-    end
-
     class << self
       private :new
       attr_reader :port, :middleware
+      attr_writer :ignore_exceptions
 
       # Start the Rails server for tests.
       # Will be called automatically by {Watir::Browser#initialize}.
@@ -64,6 +51,34 @@ module Watir
         "127.0.0.1"
       end
 
+      # Error rescued by middleware.
+      #
+      # @return [Exception or NilClass]
+      def error
+        @middleware.error
+      end
+
+      # Check if Rails exceptions should be ignored.
+      #
+      # @return [Boolean] true if exceptions should be ignored, false otherwise.
+      def ignore_exceptions?
+        unless @ignore_exceptions
+          # get shown_exceptions configuration from Rails
+          show = if legacy_rails?
+                   ::Rails.configuration.action_dispatch.show_exceptions
+                 else
+                   ::Rails.application.config.action_dispatch.show_exceptions
+                 end
+
+          if show
+            warn '[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.'
+            @ignore_exceptions = false
+          end
+        end
+
+        !!@ignore_exceptions
+      end
+
       # Check if Rails app under test is running.
       #
       # @return [Boolean] true when Rails app under test is running, false otherwise.
@@ -83,13 +98,14 @@ module Watir
       #
       # @return [Object] Rails Rack app.
       def app
+        legacy = legacy_rails?
         @app ||= Rack::Builder.new do
           map "/" do
-            if ::Rails.version.to_f >= 3.0
-              run ::Rails.application  
-            else # Rails 2
+            if legacy
               use ::Rails::Rack::Static
               run ActionController::Dispatcher.new
+            else
+              run ::Rails.application
             end
           end
         end.to_app
@@ -113,6 +129,10 @@ module Watir
           require 'rack/handler/webrick'
           Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
         end
+      end
+
+      def legacy_rails?
+        ::Rails.version.to_f < 3.0
       end
 
     end

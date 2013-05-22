@@ -9,6 +9,7 @@ module Watir
     def initialize(*args)
       Rails.boot
       original_initialize *args
+      add_checker { Rails.error and raise Rails.error } unless Rails.ignore_exceptions?
     end
 
     # @private
@@ -25,7 +26,7 @@ module Watir
     #
     # @param [String] url URL to be navigated to.
     def goto(url)
-      url = "http://#{Rails.host}:#{Rails.port}#{url}" unless url =~ %r{^https?://}i || url == "about:blank"
+      url = "http://#{Rails.host}:#{Rails.port}#{url}" unless url =~ %r{^(about|data|https?):}i
       original_goto url
     end
   end
