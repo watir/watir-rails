@@ -2,6 +2,7 @@
 
 This gem adds the [Watir](http://github.com/watir/watir) usage support when writing integration tests in Rails.
 
+
 ## Installation
 
 Add this code to your Gemfile:
@@ -24,17 +25,17 @@ browser.text_field(name: "last").set  "Pertman"
 browser.button(name: "sign_in").click
 ````
 
-### Ignore exceptions
+### Ignore Rails Exceptions
 
-By default, exceptions raised by Rails application will be re-raised in your tests.
+By default, exceptions raised by Rails application will be re-raised in your tests making them to fail.
 
-Please, note that it only happens if `config.action_dispatch.show_exceptions` is set to `false` in `config/environments/test.rb` (or any other environment you use it tests). If it is set to `true`, watir-rails will automatically disable exception catcher.
+This feature is only enabled when `config.action_dispatch.show_exceptions` is set to `false` in your Rails configuration.
 
-You can tell watir-rails to ignore exceptions:
+You can disable it in watir-rails by ignoring exceptions:
 
 ```ruby
 Watir::Rails.ignore_exceptions = false
-```
+````
 
 ## Limitations
 
@@ -44,6 +45,13 @@ in the separate thread when WIN32OLE is used.
 The problem is probably caused by the fact that [WIN32OLE overwrites Thread#initialize](https://github.com/ruby/ruby/blob/trunk/test/ruby/test_thread.rb#L607).
 
 * When using Rails path/url helpers in your tests then always use path instead of url methods, because latter won't work!
+
+
+## Contributors
+
+* [Jarmo Pertman](https://github.com/jarmo)
+* [Alex Rodionov](https://github.com/p0deje)
+
 
 ## License
 
