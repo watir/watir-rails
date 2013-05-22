@@ -26,16 +26,14 @@ browser.button(name: "sign_in").click
 
 ### Catch exceptions
 
-If you want to raise your Rails application exceptions, you should do the following.
+By default, exceptions thrown by application will be raised in your tests.
 
-1. Set `config.action_dispatch.show_exceptions` to `false` in `config/environments/test.rb`.
-2. Add checker to Watir which raises error:
+Please, note that it only happens if `config.action_dispatch.show_exceptions` is set to `false` in `config/environments/test.rb` (or any other environment you use it tests). If it is set to `true`, watir-rails will automatically disable exception catcher.
+
+You can also disable exception catcher manually:
 
 ```ruby
-# assuming @browser is a Watir::Browser instance
-@browser.add_checker do
-  raise Watir::Rails.error if Watir::Rails.error
-end
+Watir::Rails.catch_exceptions = false
 ```
 
 ## Limitations

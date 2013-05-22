@@ -3,33 +3,14 @@ require 'net/http'
 require 'rack'
 require 'watir-webdriver'
 require File.expand_path("browser.rb", File.dirname(__FILE__))
+require File.expand_path("rails/middleware.rb", File.dirname(__FILE__))
 
 module Watir
   class Rails
-    # @private
-    class Middleware
-      attr_reader :error
-
-      def initialize(app)
-        @app = app
-      end
-
-      def call(env)
-        if env["PATH_INFO"] == "/__identify__"
-          [200, {}, [@app.object_id.to_s]]
-        else
-          begin
-            @app.call(env)
-          rescue => e
-            @error = e
-          end
-        end
-      end
-    end
-
     class << self
       private :new
       attr_reader :port, :middleware
+      attr_writer :catch_exceptions
 
       # Start the Rails server for tests.
       # Will be called automatically by {Watir::Browser#initialize}.
@@ -77,6 +58,29 @@ module Watir
         @middleware.error
       end
 
+      # Check if exception catcher is enabled.
+      #
+      # @return [Boolean] true if exception catcher is and can be enabled, false otherwise.
+      def catch_exceptions
+        @catch_exceptions = true if @catch_exceptions.nil?
+        if @catch_exceptions
+          # get shown_exceptions configuration from Rails
+          show = if rails_version == 3
+                   ::Rails.application.config.action_dispatch.show_exceptions
+                 else
+                   ::Rails.configuration.action_dispatch.show_exceptions
+                 end
+
+          if show
+            warn '[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.'
+            @catch_exceptions = false
+          end
+        end
+
+        @catch_exceptions
+      end
+      alias_method :catch_exceptions?, :catch_exceptions
+
       # Check if Rails app under test is running.
       #
       # @return [Boolean] true when Rails app under test is running, false otherwise.
@@ -96,11 +100,12 @@ module Watir
       #
       # @return [Object] Rails Rack app.
       def app
+        version = rails_version
         @app ||= Rack::Builder.new do
           map "/" do
-            if ::Rails.version.to_f >= 3.0
+            if version == 3
               run ::Rails.application
-            else # Rails 2
+            else
               use ::Rails::Rack::Static
               run ActionController::Dispatcher.new
             end
@@ -125,6 +130,14 @@ module Watir
         rescue LoadError
           require 'rack/handler/webrick'
           Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
+        end
+      end
+
+      def rails_version
+        if ::Rails.version.to_f >= 3.0
+          3
+        else
+          2
         end
       end
 
