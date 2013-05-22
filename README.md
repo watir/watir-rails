@@ -7,23 +7,23 @@ This gem adds the [Watir](http://github.com/watir/watir) usage support when writ
 
 Add this code to your Gemfile:
 
-````ruby
+```ruby
 group :test do
   gem 'watir-rails'
 end
-````
+```
 
 ## Usage
 
 Just use Watir like you've always done in your requests/integration tests:
 
-````ruby
+```ruby
 browser = Watir::Browser.new
 browser.goto home_path
 browser.text_field(name: "first").set "Jarmo"
 browser.text_field(name: "last").set  "Pertman"
 browser.button(name: "sign_in").click
-````
+```
 
 ### Ignore Rails Exceptions
 
@@ -35,7 +35,7 @@ You can disable it in watir-rails by ignoring exceptions:
 
 ```ruby
 Watir::Rails.ignore_exceptions = false
-````
+```
 
 ## Limitations
 
