@@ -2,7 +2,7 @@ module Watir
   class Rails
     # @private
     class Middleware
-      attr_reader :error
+      attr_accessor :error
 
       def initialize(app)
         @app = app
