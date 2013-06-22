@@ -16,6 +16,7 @@ module Watir
             @app.call(env)
           rescue => e
             @error = e
+            raise e
           end
         end
       end
