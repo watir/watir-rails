@@ -58,6 +58,13 @@ module Watir
         @middleware.error
       end
 
+      # Set error rescued by the middleware.
+      #
+      # @param value
+      def error=(value)
+        @middleware.error = value
+      end
+
       # Check if Rails exceptions should be ignored. Defaults to false.
       #
       # @return [Boolean] true if exceptions should be ignored, false otherwise.
