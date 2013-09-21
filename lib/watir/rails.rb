@@ -23,10 +23,10 @@ module Watir
             run_default_server @middleware, @port
           end
 
-          Timeout.timeout(60) { @server_thread.join(0.1) until running? }
+          Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
         end
       rescue TimeoutError
-        raise "Rails Rack application timed out during boot"
+        raise TimeoutError, "Rails Rack application timed out during boot"
       end
 
       # Host for Rails app under test. Default is {.local_host}.
@@ -117,6 +117,10 @@ module Watir
       end
 
       private
+
+      def boot_timeout
+        60
+      end
 
       def find_available_port
         server = TCPServer.new(local_host, 0)
