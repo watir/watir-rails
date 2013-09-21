@@ -3,7 +3,7 @@
 [![Build Status](https://api.travis-ci.org/watir/watir-rails.png)](http://travis-ci.org/watir/watir-rails)
 [![Coverage](https://coveralls.io/repos/watir/watir-rails/badge.png?branch=master)](https://coveralls.io/r/watir/watir-rails)
 
-This gem adds the [Watir](http://github.com/watir/watir) usage support when writing integration tests in Rails.
+This gem makes the [Watir](https://github.com/watir/watir) work with Rails.
 
 
 ## Installation
@@ -12,7 +12,7 @@ Add this code to your Gemfile:
 
 ```ruby
 group :test do
-  gem 'watir-rails'
+  gem "watir-rails"
 end
 ```
 
@@ -37,7 +37,7 @@ This feature is only enabled when `config.action_dispatch.show_exceptions` is se
 You can disable it in watir-rails by ignoring exceptions:
 
 ```ruby
-Watir::Rails.ignore_exceptions = false
+Watir::Rails.ignore_exceptions = true
 ```
 
 ## Limitations
@@ -59,11 +59,3 @@ The problem is probably caused by the fact that [WIN32OLE overwrites Thread#init
 ## License
 
 See [LICENSE](https://github.com/watir/watir-rails/blob/master/LICENSE).
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Added some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
