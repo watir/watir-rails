@@ -1,6 +1,8 @@
 require "spec_helper"
 
 describe Watir::Rails do
+  before { described_class.stub(:warn) }
+
   context ".boot" do
     it "starts the server unless already running" do
       described_class.stub(app: double("app"), find_available_port: 42)
@@ -38,6 +40,45 @@ describe Watir::Rails do
     it "returns local_host if @host is not specified" do
       described_class.host = nil
       described_class.host.should == "127.0.0.1"
+    end
+  end
+
+  context ".ignore_exceptions?" do
+    it "returns true if @ignore_exceptions is set to true" do
+      described_class.ignore_exceptions = true
+      described_class.should be_ignore_exceptions
+    end
+
+    it "returns true if Rails.action_dispatch.show_exceptions is set to true for older Rails" do
+      described_class.stub(legacy_rails?: true)
+      described_class.ignore_exceptions = false
+      ::Rails.stub_chain(:configuration, :action_dispatch, :show_exceptions).and_return(true)
+
+      described_class.should be_ignore_exceptions
+    end
+
+    it "returns true if Rails.action_dispatch.show_exceptions is set to true for Rails 3" do
+      described_class.stub(legacy_rails?: false)
+      described_class.ignore_exceptions = false
+      ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(true)
+
+      described_class.should be_ignore_exceptions
+    end
+
+    it "returns false if Rails.action_dispatch.show_exceptions is set to false for older Rails" do
+      described_class.stub(legacy_rails?: true)
+      described_class.ignore_exceptions = false
+      ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(false)
+
+      described_class.should_not be_ignore_exceptions
+    end
+
+    it "returns true if Rails.action_dispatch.show_exceptions is set to false for Rails 3" do
+      described_class.stub(legacy_rails?: false)
+      described_class.ignore_exceptions = false
+      ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(false)
+
+      described_class.should_not be_ignore_exceptions
     end
   end
 end
