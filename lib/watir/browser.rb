@@ -23,10 +23,10 @@ module Watir
     # Opens the url with the browser instance.
     # Will add {Rails.host} and {Rails.port} to the url when path is specified.
     #
-    # @example Open the regular url:
+    # @example Go to the regular url:
     #   browser.goto "http://google.com"
     #
-    # @example Open the controller path:
+    # @example Go to the controller path:
     #   browser.goto home_path
     #
     # @param [String] url URL to be navigated to.

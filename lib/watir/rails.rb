@@ -1,7 +1,7 @@
-require 'uri'
-require 'net/http'
-require 'rack'
-require 'watir-webdriver'
+require "uri"
+require "net/http"
+require "rack"
+require "watir-webdriver"
 require File.expand_path("browser.rb", File.dirname(__FILE__))
 require File.expand_path("rails/middleware.rb", File.dirname(__FILE__))
 
@@ -29,8 +29,7 @@ module Watir
         raise "Rails Rack application timed out during boot"
       end
 
-      # Host for Rails app under test. When not set via {.host=} then
-      # {.local_host} is used.
+      # Host for Rails app under test. Default is {.local_host}.
       #
       # @return [String] Host for Rails app under test.
       def host
