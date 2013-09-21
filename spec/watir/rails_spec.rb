@@ -1,7 +1,11 @@
 require "spec_helper"
 
 describe Watir::Rails do
-  before { described_class.stub(:warn) }
+  before do
+    described_class.stub(:warn)
+    described_class.ignore_exceptions = false
+    described_class.instance_eval { @middleware = @port = @server_thread = @host = @app = nil }
+  end
 
   context ".boot" do
     it "starts the server unless already running" do
@@ -32,24 +36,24 @@ describe Watir::Rails do
   end
 
   context ".host" do
-    it "returns @host if specified" do
+    it "@host if specified" do
       described_class.host = "my_host"
       described_class.host.should == "my_host"
     end
 
-    it "returns local_host if @host is not specified" do
+    it "local_host if @host is not specified" do
       described_class.host = nil
       described_class.host.should == "127.0.0.1"
     end
   end
 
   context ".ignore_exceptions?" do
-    it "returns true if @ignore_exceptions is set to true" do
+    it "true if @ignore_exceptions is set to true" do
       described_class.ignore_exceptions = true
       described_class.should be_ignore_exceptions
     end
 
-    it "returns true if Rails.action_dispatch.show_exceptions is set to true for older Rails" do
+    it "true if Rails.action_dispatch.show_exceptions is set to true for older Rails" do
       described_class.stub(legacy_rails?: true)
       described_class.ignore_exceptions = false
       ::Rails.stub_chain(:configuration, :action_dispatch, :show_exceptions).and_return(true)
@@ -57,7 +61,7 @@ describe Watir::Rails do
       described_class.should be_ignore_exceptions
     end
 
-    it "returns true if Rails.action_dispatch.show_exceptions is set to true for Rails 3" do
+    it "true if Rails.action_dispatch.show_exceptions is set to true for Rails 3" do
       described_class.stub(legacy_rails?: false)
       described_class.ignore_exceptions = false
       ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(true)
@@ -65,7 +69,7 @@ describe Watir::Rails do
       described_class.should be_ignore_exceptions
     end
 
-    it "returns false if Rails.action_dispatch.show_exceptions is set to false for older Rails" do
+    it "false if Rails.action_dispatch.show_exceptions is set to false for older Rails" do
       described_class.stub(legacy_rails?: true)
       described_class.ignore_exceptions = false
       ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(false)
@@ -73,12 +77,51 @@ describe Watir::Rails do
       described_class.should_not be_ignore_exceptions
     end
 
-    it "returns true if Rails.action_dispatch.show_exceptions is set to false for Rails 3" do
+    it "true if Rails.action_dispatch.show_exceptions is set to false for Rails 3" do
       described_class.stub(legacy_rails?: false)
       described_class.ignore_exceptions = false
       ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(false)
 
       described_class.should_not be_ignore_exceptions
+    end
+  end
+
+  context ".running?" do
+    it "false if server thread is running" do
+      fake_thread = double("thread", join: :still_running)
+      described_class.instance_variable_set(:@server_thread, fake_thread)
+
+      described_class.should_not be_running
+    end
+
+    it "false if server cannot be accessed" do
+      fake_thread = double("thread", join: nil)
+      described_class.instance_variable_set(:@server_thread, fake_thread)
+
+      Net::HTTP.should_receive(:start).and_raise Errno::ECONNREFUSED
+      described_class.should_not be_running
+    end
+
+    it "false if server response is not success" do
+      fake_thread = double("thread", join: nil)
+      described_class.instance_variable_set(:@server_thread, fake_thread)
+      app = double("app")
+      described_class.instance_variable_set(:@app, app)
+
+      response = double(Net::HTTPSuccess, is_a?: false)
+      Net::HTTP.should_receive(:start).and_return response
+      described_class.should_not be_running
+    end    
+
+    it "true if server response is success" do
+      fake_thread = double("thread", join: nil)
+      described_class.instance_variable_set(:@server_thread, fake_thread)
+      app = double("app")
+      described_class.instance_variable_set(:@app, app)
+
+      response = double(Net::HTTPSuccess, is_a?: true, body: app.object_id.to_s)
+      Net::HTTP.should_receive(:start).and_return response
+      described_class.should be_running
     end
   end
 end
