@@ -1,4 +1,5 @@
 # Watir::Rails
+[![Gem Version](https://badge.fury.io/rb/watir-rails.png)](http://badge.fury.io/rb/watir-rails)
 
 This gem adds the [Watir](http://github.com/watir/watir) usage support when writing integration tests in Rails.
 
