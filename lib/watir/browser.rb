@@ -7,14 +7,7 @@ module Watir
     # Will start Rails instance for Watir automatically and then invoke the
     # original Watir::Browser#initialize method.
     def initialize(*args)
-      Rails.boot
-      original_initialize *args
-      add_checker do
-        if error = Rails.error
-          Rails.error = nil
-          raise error
-        end
-      end unless Rails.ignore_exceptions?
+      initialize_rails_with_watir *args
     end
 
     # @private
@@ -33,6 +26,23 @@ module Watir
     def goto(url)
       url = "http://#{Rails.host}:#{Rails.port}#{url}" unless url =~ %r{^(about|data|https?):}i
       original_goto url
+    end
+
+    private
+
+    def initialize_rails_with_watir(*args)
+      Rails.boot
+      original_initialize *args
+      add_exception_checker unless Rails.ignore_exceptions?
+    end
+
+    def add_exception_checker
+      add_checker do
+        if error = Rails.error
+          Rails.error = nil
+          raise error
+        end
+      end
     end
   end
 end
