@@ -1,3 +1,9 @@
+require "simplecov"
+require 'coveralls'
+
+SimpleCov.formatter = Coveralls::SimpleCov::Formatter
+SimpleCov.start
+
 require "watir/rails"
 
 RSpec.configure do |c|
