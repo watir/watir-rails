@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe Watir::Rails do
-  context "#boot" do
+  context ".boot" do
     it "starts the server unless already running" do
       described_class.stub(app: double("app"), find_available_port: 42)
       described_class.should_receive(:running?).twice.and_return(false, true)
@@ -26,6 +26,18 @@ describe Watir::Rails do
       expect {
         described_class.boot
       }.to raise_error(Timeout::Error)
+    end
+  end
+
+  context ".host" do
+    it "returns @host if specified" do
+      described_class.host = "my_host"
+      described_class.host.should == "my_host"
+    end
+
+    it "returns local_host if @host is not specified" do
+      described_class.host = nil
+      described_class.host.should == "127.0.0.1"
     end
   end
 end
