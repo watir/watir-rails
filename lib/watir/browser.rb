@@ -10,9 +10,6 @@ module Watir
       initialize_rails_with_watir *args
     end
 
-    # @private
-    alias_method :original_goto, :goto
-
     # Opens the url with the browser instance.
     # Will add {Rails.host} and {Rails.port} to the url when path is specified.
     #
@@ -25,14 +22,35 @@ module Watir
     # @param [String] url URL to be navigated to.
     def goto(url)
       url = "http://#{Rails.host}:#{Rails.port}#{url}" unless url =~ %r{^(about|data|https?):}i
-      original_goto url
+      _new_goto url
     end
 
     private
 
+    def override_and_preserve_original_methods(*method_names, &block)
+      method_names.each do |method_name|
+        next if respond_to? "_original_#{method_name}", true
+        self.class.send :alias_method, "_original_#{method_name}", method_name
+      end
+
+      result = block.call
+
+      method_names.each do |method_name|
+        next if respond_to? "_new_#{method_name}", true
+        self.class.send :alias_method, "_new_#{method_name}", method_name
+
+        self.class.send :define_method, method_name do |*args|
+          send("_original_#{method_name}", *args)
+          #send("_new_#{method_name}", *args)
+        end
+      end
+
+      result
+    end
+
     def initialize_rails_with_watir(*args)
       Rails.boot
-      original_initialize *args
+      override_and_preserve_original_methods(:goto) { original_initialize *args }
       add_exception_checker unless Rails.ignore_exceptions?
     end
 

@@ -1,7 +1,7 @@
 require "uri"
 require "net/http"
 require "rack"
-require "watir-webdriver"
+require "watir"
 require "rails"
 require File.expand_path("browser.rb", File.dirname(__FILE__))
 require File.expand_path("rails/middleware.rb", File.dirname(__FILE__))
