@@ -19,6 +19,9 @@ Gem::Specification.new do |gem|
   gem.add_dependency "rack"
   gem.add_dependency "rails"
   gem.add_dependency "watir", "~> 5.0"
+  # This is needed to make sure that mime-types 2.x is not installed because
+  # actionmailer has a mail ~> 2.5.4 as its dependency, which needs mime-types ~> 1.16
+  gem.add_dependency "mime-types", "~> 1.16"
 
   gem.add_development_dependency "yard"
   gem.add_development_dependency "redcarpet"

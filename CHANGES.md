@@ -1,3 +1,7 @@
+### 1.0.2 - 2013/11/02
+
+* Make sure that newest Rails is going to be installed on an empty system.
+
 ### 1.0.1 - 2013/11/01
 
 * Add license to gemspec.
