@@ -42,11 +42,6 @@ Watir::Rails.ignore_exceptions = true
 
 ## Limitations
 
-* Watir-Rails works currently only with the [Watir-WebDriver](http://github.com/watir/watir-webdriver) and not with
-the [Watir-Classic](http://github.com/watir/watir-classic) due to the problems of running a server
-in the separate thread when WIN32OLE is used.
-The problem is probably caused by the fact that [WIN32OLE overwrites Thread#initialize](https://github.com/ruby/ruby/blob/trunk/test/ruby/test_thread.rb#L607).
-
 * When using Rails path/url helpers in your tests then always use path instead of url methods, because latter won't work!
 
 
