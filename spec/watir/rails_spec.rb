@@ -72,7 +72,7 @@ describe Watir::Rails do
     it "false if Rails.action_dispatch.show_exceptions is set to false for older Rails" do
       described_class.stub(legacy_rails?: true)
       described_class.ignore_exceptions = false
-      ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(false)
+      ::Rails.stub_chain(:configuration, :action_dispatch, :show_exceptions).and_return(false)
 
       described_class.should_not be_ignore_exceptions
     end
