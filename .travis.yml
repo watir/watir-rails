@@ -2,7 +2,7 @@ rvm:
  - 1.9.3
  - 2.0.0
  - ruby-head
-gemfiles:
+gemfile:
   - gemfiles/Gemfile.rails-2.x
   - gemfiles/Gemfile.rails-3.x
   - Gemfile
