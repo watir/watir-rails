@@ -3,7 +3,7 @@ require "spec_helper"
 describe Watir::Rails do
   before do
     described_class.stub(:warn)
-    described_class.ignore_exceptions = false
+    described_class.ignore_exceptions = nil
     described_class.instance_eval { @middleware = @port = @server_thread = @host = @app = nil }
   end
 
@@ -53,9 +53,14 @@ describe Watir::Rails do
       described_class.should be_ignore_exceptions
     end
 
+    it "false if @ignore_exceptions is set to false" do
+      described_class.ignore_exceptions = false
+      described_class.should_not be_ignore_exceptions
+    end
+
     it "true if Rails.action_dispatch.show_exceptions is set to true for older Rails" do
       described_class.stub(legacy_rails?: true)
-      described_class.ignore_exceptions = false
+      described_class.ignore_exceptions = nil
       ::Rails.stub_chain(:configuration, :action_dispatch, :show_exceptions).and_return(true)
 
       described_class.should be_ignore_exceptions
@@ -63,7 +68,7 @@ describe Watir::Rails do
 
     it "true if Rails.action_dispatch.show_exceptions is set to true for Rails 3" do
       described_class.stub(legacy_rails?: false)
-      described_class.ignore_exceptions = false
+      described_class.ignore_exceptions = nil
       ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(true)
 
       described_class.should be_ignore_exceptions
@@ -71,7 +76,7 @@ describe Watir::Rails do
 
     it "false if Rails.action_dispatch.show_exceptions is set to false for older Rails" do
       described_class.stub(legacy_rails?: true)
-      described_class.ignore_exceptions = false
+      described_class.ignore_exceptions = nil
       ::Rails.stub_chain(:configuration, :action_dispatch, :show_exceptions).and_return(false)
 
       described_class.should_not be_ignore_exceptions
@@ -79,7 +84,7 @@ describe Watir::Rails do
 
     it "true if Rails.action_dispatch.show_exceptions is set to false for Rails 3" do
       described_class.stub(legacy_rails?: false)
-      described_class.ignore_exceptions = false
+      described_class.ignore_exceptions = nil
       ::Rails.stub_chain(:application, :config, :action_dispatch, :show_exceptions).and_return(false)
 
       described_class.should_not be_ignore_exceptions
