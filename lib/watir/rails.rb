@@ -76,7 +76,7 @@ module Watir
       #
       # @return [Boolean] true if exceptions should be ignored, false otherwise.
       def ignore_exceptions?
-        unless @ignore_exceptions
+        if @ignore_exceptions.nil?
           show_exceptions = if legacy_rails?
                    ::Rails.configuration.action_dispatch.show_exceptions
                  else
