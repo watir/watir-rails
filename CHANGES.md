@@ -1,3 +1,7 @@
+### 1.0.4 - 2015/02/28
+
+* Allow to set Watir::Rails.ignore_exceptions to false. PR #8 by Andrey Koleshko.
+
 ### 1.0.3 - 2013/11/02
 
 * Make watir-rails working with Rails 2.3.x too.
