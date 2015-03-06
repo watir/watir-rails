@@ -11,6 +11,7 @@ describe Watir::Rails do
     it "starts the server unless already running" do
       allow(described_class).to receive_messages(app: double("app"), find_available_port: 42)
       expect(described_class).to receive(:running?).twice.and_return(false, true)
+      sleep 0.1
       expect(described_class).to receive(:run_default_server).once
 
       described_class.boot
