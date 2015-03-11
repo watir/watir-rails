@@ -14,6 +14,7 @@ describe Watir::Rails do
       described_class.should_receive(:run_default_server).once
 
       described_class.boot
+      wait_until_server_started
     end
 
     it "does nothing if server is already running" do
@@ -32,6 +33,10 @@ describe Watir::Rails do
       expect {
         described_class.boot
       }.to raise_error(Timeout::Error)
+    end
+
+    def wait_until_server_started
+      Timeout.timeout(10) { sleep 0.1 while described_class.instance_variable_get(:@server_thread).alive? }
     end
   end
 
