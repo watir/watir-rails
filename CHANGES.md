@@ -1,3 +1,7 @@
+### 1.1.0 - 2015/07/22
+
+* Remove strict `mime-types` dependency. See #13
+
 ### 1.0.4 - 2015/02/28
 
 * Allow to set Watir::Rails.ignore_exceptions to false. PR #8 by Andrey Koleshko.
