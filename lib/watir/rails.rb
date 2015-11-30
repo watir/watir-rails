@@ -143,13 +143,15 @@ module Watir
           require 'rack/handler/thin'
           Thin::Logging.silent = true
           Rack::Handler::Thin.run(app, :Port => port)
+
           loaded = true
         rescue LoadError
         end
 
         begin
           require 'rack/handler/puma'
-          Rack::Handler::Puma.run(app, :Port => port)
+          Rack::Handler::Puma.run(app, :Port => port, :Silent => true)
+
           loaded = true
         rescue LoadError
         end
