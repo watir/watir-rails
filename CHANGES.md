@@ -1,3 +1,7 @@
+### 1.2.0 - 2016/01/16
+
+* Add support for running Rails on Puma server. PR #15 by Andrey Koleshko.
+
 ### 1.1.0 - 2015/07/22
 
 * Remove strict `mime-types` dependency. See #13
