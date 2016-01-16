@@ -126,7 +126,7 @@ describe Watir::Rails do
       response = double(Net::HTTPSuccess, is_a?: false)
       expect(Net::HTTP).to receive(:start).and_return response
       expect(described_class).not_to be_running
-    end    
+    end
 
     it "true if server response is success" do
       fake_thread = double("thread", join: nil)

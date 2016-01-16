@@ -141,11 +141,18 @@ module Watir
         begin
           require 'rack/handler/thin'
           Thin::Logging.silent = true
-          Rack::Handler::Thin.run(app, :Port => port)
+          return Rack::Handler::Thin.run(app, :Port => port)
         rescue LoadError
-          require 'rack/handler/webrick'
-          Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
         end
+
+        begin
+          require 'rack/handler/puma'
+          return Rack::Handler::Puma.run(app, :Port => port, :Silent => true)
+        rescue LoadError
+        end
+
+        require 'rack/handler/webrick'
+        Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
       end
 
       def legacy_rails?
