@@ -1,3 +1,7 @@
+### Unreleased
+
+* Fix `Browser#add_checker` deprecation warning. See #18
+
 ### 1.2.0 - 2016/01/16
 
 * Add support for running Rails on Puma server. PR #15 by Andrey Koleshko.
