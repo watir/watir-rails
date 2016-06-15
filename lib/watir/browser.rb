@@ -55,7 +55,7 @@ module Watir
     end
 
     def add_exception_checker
-      add_checker do
+      after_hooks.add do
         if error = Rails.error
           Rails.error = nil
           raise error
