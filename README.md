@@ -3,7 +3,7 @@
 [![Build Status](https://api.travis-ci.org/watir/watir-rails.png)](http://travis-ci.org/watir/watir-rails)
 [![Coverage](https://coveralls.io/repos/watir/watir-rails/badge.png?branch=master)](https://coveralls.io/r/watir/watir-rails)
 
-This gem makes the [Watir](https://github.com/watir/watir) work with Rails.
+This gem makes [Watir](https://github.com/watir/watir) work with Rails.
 
 
 ## Installation
