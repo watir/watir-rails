@@ -10,7 +10,7 @@ rescue LoadError
   require "initializer"
 end
 
-require File.expand_path("browser.rb", File.dirname(__FILE__))
+require File.expand_path("rails/browser.rb", File.dirname(__FILE__))
 require File.expand_path("rails/middleware.rb", File.dirname(__FILE__))
 
 module Watir
@@ -33,8 +33,8 @@ module Watir
 
           Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
         end
-      rescue TimeoutError
-        raise TimeoutError, "Rails Rack application timed out during boot"
+      rescue Timeout::Error
+        raise Timeout::Error, "Rails Rack application timed out during boot"
       end
 
       # Host for Rails app under test. Default is {.local_host}.

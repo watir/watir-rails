@@ -1,3 +1,7 @@
+### 2.0.0 - 2016/09/24
+
+* Add support for Watir 6.0.
+
 ### 1.2.1 - 2016/06/15
 
 * Fix Browser#add_checker deprecation warning. PR #18 by Christophe Bliard.

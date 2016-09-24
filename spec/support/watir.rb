@@ -3,7 +3,9 @@
 module Watir
   class Browser
     def initialize(*args)
-      require File.expand_path("fake_browser_with_goto", File.dirname(__FILE__))
+    end
+
+    def goto(url)
     end
   end
 end
