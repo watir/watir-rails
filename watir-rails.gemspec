@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "rack"
   gem.add_dependency "rails"
-  gem.add_dependency "watir", ">= 6.0.0.beta4"
+  gem.add_dependency "watir", "~> 6.7.0"
 
   gem.add_development_dependency "yard"
   gem.add_development_dependency "redcarpet"
