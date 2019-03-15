@@ -22,10 +22,12 @@ module Watir
 
       # Start the Rails server for tests.
       # Will be called automatically by {Watir::Browser#initialize}.
-      def boot
+      #
+      # @param [Integer] port port for the Rails up to run on. If omitted random port will be picked.
+      def boot(port: nil)
         unless running?
           @middleware = Middleware.new(app)
-          @port = find_available_port
+          @port = port || find_available_port
 
           @server_thread = Thread.new do
             run_default_server @middleware, @port
