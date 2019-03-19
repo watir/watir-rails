@@ -1,3 +1,7 @@
+### 2.1.0 - 2019/03/19
+
+* Add support for specifying Rails test-server port. PR #22 by Bartek Wilczek.
+
 ### 2.0.0 - 2016/09/24
 
 * Add support for Watir 6.0.
