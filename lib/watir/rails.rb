@@ -67,6 +67,13 @@ module Watir
         @middleware.error
       end
 
+      # Returns true if there are pending requests to server.
+      #
+      # @return [Boolean]
+      def pending_requests?
+        @middleware.pending_requests?
+      end
+
       # Set error rescued by the middleware.
       #
       # @param value
