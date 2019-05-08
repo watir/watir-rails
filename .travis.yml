@@ -4,11 +4,11 @@ rvm:
  - ruby-head
 before_install:
   - |
-  if [[ "$BUNDLER_VERSION" ]]
-  then
-    rvm @default,@global do gem uninstall bundler --all --executables
-    gem install bundler -v "$BUNDLER_VERSION"
-  fi
+    if [[ "$BUNDLER_VERSION" ]]
+    then
+      rvm @default,@global do gem uninstall bundler --all --executables
+      gem install bundler -v "$BUNDLER_VERSION"
+    fi
   - bundle --version
 matrix:
   - BUNDLE_GEMFILE=$PWD/gemfiles/Gemfile.rails-2.x
