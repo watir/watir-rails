@@ -18,7 +18,7 @@ module Watir
     class << self
       private :new
       attr_reader :port, :middleware
-      attr_writer :ignore_exceptions
+      attr_writer :ignore_exceptions, :server
 
       # Start the Rails server for tests.
       # Will be called automatically by {Watir::Browser#initialize}.
@@ -30,7 +30,7 @@ module Watir
           @port = port || find_available_port
 
           @server_thread = Thread.new do
-            run_default_server @middleware, @port
+            server.call @middleware, @port
           end
 
           Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
@@ -139,22 +139,24 @@ module Watir
         server.close if server
       end
 
-      def run_default_server(app, port)
-        begin
-          require 'rack/handler/thin'
-          Thin::Logging.silent = true
-          return Rack::Handler::Thin.run(app, :Port => port)
-        rescue LoadError
-        end
+      def server
+        @server ||= lambda do |app, port|
+          begin
+            require 'rack/handler/thin'
+            Thin::Logging.silent = true
+            return Rack::Handler::Thin.run(app, :Port => port)
+          rescue LoadError
+          end
 
-        begin
-          require 'rack/handler/puma'
-          return Rack::Handler::Puma.run(app, :Port => port, :Silent => true)
-        rescue LoadError
-        end
+          begin
+            require 'rack/handler/puma'
+            return Rack::Handler::Puma.run(app, :Port => port, :Silent => true)
+          rescue LoadError
+          end
 
-        require 'rack/handler/webrick'
-        Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
+          require 'rack/handler/webrick'
+          Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
+        end
       end
 
       def legacy_rails?

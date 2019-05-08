@@ -9,9 +9,11 @@ describe Watir::Rails do
 
   context ".boot" do
     it "starts the server unless already running" do
+      server = ->(app, port) {}
       allow(described_class).to receive_messages(app: double("app"), find_available_port: 42)
       expect(described_class).to receive(:running?).twice.and_return(false, true)
-      expect(described_class).to receive(:run_default_server).once
+      expect(described_class).to receive(:server).and_return(server)
+      expect(server).to receive(:call).once
 
       described_class.boot
       wait_until_server_started
@@ -20,16 +22,18 @@ describe Watir::Rails do
     it "does nothing if server is already running" do
       allow(described_class).to receive_messages(app: double("app"), find_available_port: 42)
       expect(described_class).to receive(:running?).once.and_return(true)
-      expect(described_class).not_to receive(:run_default_server)
+      expect(described_class).not_to receive(:server)
 
       described_class.boot
     end
 
     it "raises an error if Rails won't boot with timeout" do
+      server = ->(app, port) {}
       allow(described_class).to receive_messages(app: double("app"),
         find_available_port: 42, boot_timeout: 0.01)
       expect(described_class).to receive(:running?).at_least(:twice).and_return(false)
-      expect(described_class).to receive(:run_default_server)
+      expect(described_class).to receive(:server).and_return(server)
+      expect(server).to receive(:call)
 
       expect {
         described_class.boot
@@ -38,6 +42,19 @@ describe Watir::Rails do
 
     def wait_until_server_started
       Timeout.timeout(10) { sleep 0.1 while described_class.instance_variable_get(:@server_thread).alive? }
+    end
+  end
+
+  context ".server" do
+    it "allows to customize server" do
+      allow(described_class).to receive_messages(app: double("app"), find_available_port: 42)
+      allow(described_class).to receive(:running?).twice.and_return(false, true)
+
+      server = ->(app, port) {}
+      described_class.server = server
+      expect(server).to receive(:call)
+
+      described_class.boot
     end
   end
 
