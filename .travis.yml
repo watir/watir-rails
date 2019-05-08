@@ -1,20 +1,11 @@
 rvm:
- - 2.6.3
- - 2.5.5
- - ruby-head
-before_install:
-  - |
-    if [[ "$BUNDLER_VERSION" ]]
-    then
-      rvm @default,@global do gem uninstall bundler --all --executables
-      gem install bundler -v "$BUNDLER_VERSION"
-    fi
-  - bundle --version
-matrix:
-  - BUNDLE_GEMFILE=$PWD/gemfiles/Gemfile.rails-2.x
-  - BUNDLE_GEMFILE=$PWD/gemfiles/Gemfile.rails-3.x BUNDLER_VERSION=1.17.3
-  - BUNDLE_GEMFILE=$PWD/gemfiles/Gemfile.rails-4.x BUNDLER_VERSION=1.17.3
-  - BUNDLE_GEMFILE=$PWD/Gemfile
+  - 2.6.3
+  - ruby-head
+gemfile:
+  - gemfiles/Gemfile.rails-2.x
+  - gemfiles/Gemfile.rails-3.x
+  - gemfiles/Gemfile.rails-4.x
+  - Gemfile
 notifications:
   recipients:
     - jarmo@jarmopertman.com
