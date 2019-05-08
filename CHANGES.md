@@ -1,3 +1,8 @@
+### 2.2.0 - 2019
+
+* Add support for specifying custom server for test Rails instance. PR #23 by Alex Rodionov.
+* Add support for cleaning up when test Rails server instance has served all requests. PR #23 by Alex Rodionov.
+
 ### 2.1.0 - 2019/03/19
 
 * Add support for specifying Rails test-server port. PR #22 by Bartek Wilczek.
