@@ -18,7 +18,7 @@ module Watir
     class << self
       private :new
       attr_reader :port, :middleware
-      attr_writer :ignore_exceptions, :server
+      attr_writer :server
 
       # Start the Rails server for tests.
       # Will be called automatically by {Watir::Browser#initialize}.
@@ -81,26 +81,6 @@ module Watir
         @middleware.error = value
       end
 
-      # Check if Rails exceptions should be ignored. Defaults to false.
-      #
-      # @return [Boolean] true if exceptions should be ignored, false otherwise.
-      def ignore_exceptions?
-        if @ignore_exceptions.nil?
-          show_exceptions = if legacy_rails?
-                   ::Rails.configuration.action_dispatch.show_exceptions
-                 else
-                   ::Rails.application.config.action_dispatch.show_exceptions
-                 end
-
-          if show_exceptions
-            warn '[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.'
-            @ignore_exceptions = true
-          end
-        end
-
-        !!@ignore_exceptions
-      end
-
       # Check if Rails app under test is running.
       #
       # @return [Boolean] true when Rails app under test is running, false otherwise.
@@ -120,15 +100,9 @@ module Watir
       #
       # @return [Object] Rails Rack app.
       def app
-        legacy = legacy_rails?
         @app ||= Rack::Builder.new do
           map "/" do
-            if legacy
-              use ::Rails::Rack::Static
-              run ActionController::Dispatcher.new
-            else
-              run ::Rails.application
-            end
+            run Hanami.app
           end
         end.to_app
       end
@@ -140,6 +114,7 @@ module Watir
       end
 
       def find_available_port
+        return 4000
         server = TCPServer.new(local_host, 0)
         server.addr[1]
       ensure
@@ -164,10 +139,6 @@ module Watir
           require 'rack/handler/webrick'
           Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
         end
-      end
-
-      def legacy_rails?
-        ::Rails.version.to_f < 3.0
       end
 
     end
