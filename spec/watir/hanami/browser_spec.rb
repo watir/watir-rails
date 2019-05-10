@@ -1,11 +1,11 @@
 require "spec_helper"
 
 describe Watir::Browser do
-  before { allow(Watir::Rails).to receive_messages(ignore_exceptions?: true) }
+  before { allow(Watir::Hanami).to receive_messages(ignore_exceptions?: true) }
 
   context "#initialize" do
-    it "starts Rails before opening the browser" do
-      expect(Watir::Rails).to receive(:boot)
+    it "starts Hanami before opening the browser" do
+      expect(Watir::Hanami).to receive(:boot)
       expect_any_instance_of(Watir::Browser).to receive(:_original_initialize).and_call_original
 
       Watir::Browser.new
@@ -14,12 +14,12 @@ describe Watir::Browser do
 
   context "#goto" do
     before do
-      allow(Watir::Rails).to receive_messages(host: "foo.com", port: 42, boot: nil)
+      allow(Watir::Hanami).to receive_messages(host: "foo.com", port: 42, boot: nil)
     end
 
     let(:browser) { Watir::Browser.new }
 
-    it "uses Rails for paths specified as an url" do
+    it "uses Hanami for paths specified as an url" do
       expect(browser).to receive(:_original_goto).with("http://foo.com:42/foo/bar")
       browser.goto("/foo/bar")
     end

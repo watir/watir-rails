@@ -1,5 +1,5 @@
 module Watir
-  class Rails
+  class Hanami
     # @private
     class Middleware
       class PendingRequestsCounter

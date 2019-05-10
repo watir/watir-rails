@@ -1,14 +1,13 @@
 rvm:
+  - 2.4.4
   - 2.6.3
   - ruby-head
 gemfile:
-  - gemfiles/Gemfile.rails-2.x
-  - gemfiles/Gemfile.rails-3.x
-  - gemfiles/Gemfile.rails-4.x
+  - gemfiles/Gemfile.hanami-1.3.x
   - Gemfile
 notifications:
   recipients:
-    - jarmo@jarmopertman.com
+    - marcelo.jacobus@gmail.com
 matrix:
   allow_failures:
     - rvm: ruby-head

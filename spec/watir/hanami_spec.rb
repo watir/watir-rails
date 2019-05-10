@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Watir::Rails do
+describe Watir::Hanami do
   before do
     allow(described_class).to receive(:warn)
     described_class.instance_eval { @middleware = @port = @server_thread = @host = @app = nil }
@@ -26,7 +26,7 @@ describe Watir::Rails do
       described_class.boot
     end
 
-    it "raises an error if Rails won't boot with timeout" do
+    it "raises an error if Hanami won't boot with timeout" do
       server = ->(app, port) {}
       allow(described_class).to receive_messages(app: double("app"),
         find_available_port: 42, boot_timeout: 0.01)

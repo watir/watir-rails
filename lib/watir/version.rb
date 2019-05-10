@@ -1,5 +1,5 @@
 module Watir
-  class Rails
-    VERSION = "2.2.0"
+  class Hanami
+    VERSION = "0.1"
   end
 end

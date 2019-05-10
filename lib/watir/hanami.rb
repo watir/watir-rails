@@ -3,28 +3,21 @@ require "net/http"
 require "rack"
 require "watir"
 
-begin
-  require "rails"
-rescue LoadError
-  # Load legacy Rails
-  require "initializer"
-end
-
-require File.expand_path("rails/browser.rb", File.dirname(__FILE__))
-require File.expand_path("rails/middleware.rb", File.dirname(__FILE__))
+require File.expand_path("hanami/browser.rb", File.dirname(__FILE__))
+require File.expand_path("hanami/middleware.rb", File.dirname(__FILE__))
 
 module Watir
-  class Rails
+  class Hanami
     class << self
       private :new
       attr_reader :port, :middleware
       attr_writer :server
       attr_writer :port
 
-      # Start the Rails server for tests.
+      # Start the Hanami
       # Will be called automatically by {Watir::Browser#initialize}.
       #
-      # @param [Integer] port port for the Rails up to run on. If omitted random port will be picked.
+      # @param [Integer] port port for the Hanami
       def boot(port: nil)
         unless running?
           @middleware = Middleware.new(app)
@@ -37,24 +30,24 @@ module Watir
           Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
         end
       rescue Timeout::Error
-        raise Timeout::Error, "Rails Rack application timed out during boot"
+        raise Timeout::Error, "Hanami Rack application timed out during boot"
       end
 
-      # Host for Rails app under test. Default is {.local_host}.
+      # Host for Hanami app under test. Default is {.local_host}.
       #
-      # @return [String] Host for Rails app under test.
+      # @return [String] Host for Hanami app under test.
       def host
         @host || local_host
       end
 
-      # Set host for Rails app. Will be used by {Browser#goto} method.
+      # Set host for Hanami app. Will be used by {Browser#goto} method.
       #
       # @param [String] host host to use when using {Browser#goto}.
       def host=(host)
         @host = host
       end
 
-      # Local host for Rails app under test.
+      # Local host for Hanami app under test.
       #
       # @return [String] Local host with the value of "127.0.0.1".
       def local_host
@@ -82,9 +75,9 @@ module Watir
         @middleware.error = value
       end
 
-      # Check if Rails app under test is running.
+      # Check if Hanami app under test is running.
       #
-      # @return [Boolean] true when Rails app under test is running, false otherwise.
+      # @return [Boolean] true when Hanami app under test is running, false otherwise.
       def running?
         return false if @server_thread && @server_thread.join(0)
 
@@ -97,13 +90,13 @@ module Watir
         return false
       end
 
-      # Rails app under test.
+      # Hanami app under test.
       #
-      # @return [Object] Rails Rack app.
+      # @return [Object] Hanami Rack app.
       def app
         @app ||= Rack::Builder.new do
           map "/" do
-            run Hanami.app
+            run ::Hanami.app
           end
         end.to_app
       end
