@@ -7,9 +7,7 @@ module Watir
     # Will start Rails instance for Watir automatically and then invoke the
     # original Watir::Browser#initialize method.
     def initialize(*args)
-      puts 'before Hanami.boot'
       Rails.boot
-      puts 'after Hanami.boot'
       _original_initialize *args
     end
 
@@ -26,7 +24,7 @@ module Watir
     #   browser.goto home_path
     #
     # @param [String] url URL to be navigated to.
-    def _goto(url)
+    def goto(url)
       url = "http://#{Rails.host}:#{Rails.port}#{url}" unless url =~ %r{^(about|data|https?):}i
       _original_goto url
     end

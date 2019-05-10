@@ -19,6 +19,7 @@ module Watir
       private :new
       attr_reader :port, :middleware
       attr_writer :server
+      attr_writer :port
 
       # Start the Rails server for tests.
       # Will be called automatically by {Watir::Browser#initialize}.
@@ -114,7 +115,6 @@ module Watir
       end
 
       def find_available_port
-        return 4000
         server = TCPServer.new(local_host, 0)
         server.addr[1]
       ensure
