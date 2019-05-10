@@ -10,20 +10,6 @@ describe Watir::Browser do
 
       Watir::Browser.new
     end
-
-    it "does not add Exception hook when exceptions are ignored" do
-      allow(Watir::Rails).to receive_messages(ignore_exceptions?: true, boot: nil)
-
-      expect_any_instance_of(Watir::Browser).not_to receive(:add_exception_hook)
-      Watir::Browser.new
-    end
-
-    it "adds Exception hook when exceptions are not ignored" do
-      allow(Watir::Rails).to receive_messages(ignore_exceptions?: false, boot: nil)
-
-      expect_any_instance_of(Watir::Browser).to receive(:add_exception_hook)
-      Watir::Browser.new
-    end
   end
 
   context "#goto" do
