@@ -36,6 +36,7 @@ browser.button(name: "sign_in").click
 
 * [Jarmo Pertman](https://github.com/jarmo)
 * [Alex Rodionov](https://github.com/p0deje)
+* [Marcelo Jacobus](https://github.com/mjacobus)
 
 
 ## License
