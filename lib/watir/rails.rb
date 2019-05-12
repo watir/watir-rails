@@ -112,7 +112,7 @@ module Watir
         if res.is_a?(Net::HTTPSuccess) or res.is_a?(Net::HTTPRedirection)
           return res.body == @app.object_id.to_s
         end
-      rescue Errno::ECONNREFUSED, Errno::EBADF
+      rescue Errno::ECONNREFUSED, Errno::EBADF, EOFError
         return false
       end
 
