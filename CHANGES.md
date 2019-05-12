@@ -1,4 +1,8 @@
-### 2.2.0 - 2019
+### 2.2.1 - 2019/05/12
+
+* Fix EOFError on some environments. PR #25 by Slava Kardakov.
+
+### 2.2.0 - 2019/05/08
 
 * Add support for specifying custom server for test Rails instance. PR #23 by Alex Rodionov.
 * Add support for cleaning up when test Rails server instance has served all requests. PR #23 by Alex Rodionov.
