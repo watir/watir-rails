@@ -25,9 +25,10 @@ module Watir
       #
       # @param [Integer] port port for the Rails up to run on. If omitted random port will be picked.
       def boot(port: nil)
+        @port = port || find_available_port
+
         unless running?
           @middleware = Middleware.new(app)
-          @port = port || find_available_port
 
           @server_thread = Thread.new do
             server.call @middleware, @port
