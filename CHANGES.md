@@ -1,3 +1,7 @@
+### 2.2.2 - 2020/06/04
+
+* Fix a situation where checking if server is running without using specified port. PR #27 by Stefan Rotariu.
+
 ### 2.2.1 - 2019/05/12
 
 * Fix EOFError on some environments. PR #25 by Slava Kardakov.
