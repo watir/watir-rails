@@ -12,16 +12,16 @@ jobs:
     continue-on-error: ${{ matrix.ruby-version == 'debug' }}
     strategy:
       matrix:
-        BUNDLE_GEMFILE: [gemfiles/Gemfile.rails-3.x, gemfiles/Gemfile.rails-4.x, Gemfile]
-        ruby-version: [2.6.3, debug]
+        rails-version: ['3.2', '4.2', '6.0']
+        ruby-version: ['2.6.3', 'debug']
         exclude:
           # rails-4.2 requires BigDecimal.new (dropped in ruby-2.7)
-          - { BUNDLE_GEMFILE: gemfiles/Gemfile.rails-4.x, ruby-version: debug }
+          - { rails-version: '4.2', ruby-version: 'debug' }
           # The issue on rails-3.2 + head is json-1.8.6 compat (simplecov
           # uses it), we could potentially workaround it using, for example, Oj
-          - { BUNDLE_GEMFILE: gemfiles/Gemfile.rails-3.x, ruby-version: debug }
+          - { rails-version: '3.2', ruby-version: 'debug' }
     env:
-      BUNDLE_GEMFILE: ${{ github.workspace }}/${{ matrix.BUNDLE_GEMFILE }}
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_${{ matrix.rails-version }}.gemfile
 
     steps:
       - uses: actions/checkout@v2
@@ -40,7 +40,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path-to-lcov: './coverage/lcov.info'
           parallel: true
-          flag-name: ruby-${{ matrix.ruby-version }}_gemfile-${{ matrix.BUNDLE_GEMFILE }}
+          flag-name: ruby-${{ matrix.ruby-version }}_rails-${{ matrix.rails-version }}
 
   coveralls:
     needs: test
