@@ -1,10 +1,22 @@
 require "spec_helper"
 
 describe Watir::Rails do
+  # We don't want memoization here, so no `let`
+  def server_thread
+    described_class.instance_variable_get(:@server_thread)
+  end
+
   before do
     allow(described_class).to receive(:warn)
     described_class.ignore_exceptions = nil
     described_class.instance_eval { @middleware = @port = @server_thread = @host = @app = nil }
+  end
+
+  after do
+    if server_thread && server_thread.alive?
+      server_thread.kill
+      server_thread.join
+    end
   end
 
   context ".boot" do
@@ -41,18 +53,24 @@ describe Watir::Rails do
     end
 
     def wait_until_server_started
-      Timeout.timeout(10) { sleep 0.1 while described_class.instance_variable_get(:@server_thread).alive? }
+      Timeout.timeout(10) { sleep 0.1 while server_thread.alive? }
     end
   end
 
   context ".server" do
-    it "allows to customize server" do
-      allow(described_class).to receive_messages(app: double("app"), find_available_port: 42)
-      allow(described_class).to receive(:running?).twice.and_return(false, true)
+    let(:app) { instance_double(::Rails::Application) }
+    let(:server) do
+      ->(app, port) { Rack::Handler.get(:webrick).run(app, Port: port, AccessLog: [], Logger: Logger.new(nil)) }
+    end
 
-      server = ->(app, port) {}
+    before do
+      allow(::Rails).to receive(:application).and_return(instance_double(::Rails::Application))
+
       described_class.server = server
-      expect(server).to receive(:call)
+    end
+
+    it "allows to customize server" do
+      expect(server).to receive(:call).with(Watir::Rails::Middleware, Integer).once.and_call_original
 
       described_class.boot
     end
@@ -100,14 +118,14 @@ describe Watir::Rails do
 
   context ".running?" do
     it "false if server thread is running" do
-      fake_thread = double("thread", join: :still_running)
+      fake_thread = instance_double(Thread, join: :still_running, alive?: false)
       described_class.instance_variable_set(:@server_thread, fake_thread)
 
       expect(described_class).not_to be_running
     end
 
     it "false if server cannot be accessed" do
-      fake_thread = double("thread", join: nil)
+      fake_thread = instance_double(Thread, join: nil, alive?: false)
       described_class.instance_variable_set(:@server_thread, fake_thread)
 
       expect(Net::HTTP).to receive(:start).and_raise Errno::ECONNREFUSED
@@ -115,7 +133,7 @@ describe Watir::Rails do
     end
 
     it "false if server response is not success" do
-      fake_thread = double("thread", join: nil)
+      fake_thread = instance_double(Thread, join: nil, alive?: false)
       described_class.instance_variable_set(:@server_thread, fake_thread)
       app = double("app")
       described_class.instance_variable_set(:@app, app)
@@ -126,7 +144,7 @@ describe Watir::Rails do
     end
 
     it "true if server response is success" do
-      fake_thread = double("thread", join: nil)
+      fake_thread = instance_double(Thread, join: nil, alive?: false)
       described_class.instance_variable_set(:@server_thread, fake_thread)
       app = double("app")
       described_class.instance_variable_set(:@app, app)
