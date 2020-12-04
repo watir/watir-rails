@@ -3,12 +3,7 @@ require "net/http"
 require "rack"
 require "watir"
 
-begin
-  require "rails"
-rescue LoadError
-  # Load legacy Rails
-  require "initializer"
-end
+require "rails"
 
 require File.expand_path("rails/browser.rb", File.dirname(__FILE__))
 require File.expand_path("rails/middleware.rb", File.dirname(__FILE__))
@@ -87,13 +82,7 @@ module Watir
       # @return [Boolean] true if exceptions should be ignored, false otherwise.
       def ignore_exceptions?
         if @ignore_exceptions.nil?
-          show_exceptions = if legacy_rails?
-                   ::Rails.configuration.action_dispatch.show_exceptions
-                 else
-                   ::Rails.application.config.action_dispatch.show_exceptions
-                 end
-
-          if show_exceptions
+          if ::Rails.application.config.action_dispatch.show_exceptions
             warn '[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.'
             @ignore_exceptions = true
           end
@@ -121,15 +110,9 @@ module Watir
       #
       # @return [Object] Rails Rack app.
       def app
-        legacy = legacy_rails?
         @app ||= Rack::Builder.new do
           map "/" do
-            if legacy
-              use ::Rails::Rack::Static
-              run ActionController::Dispatcher.new
-            else
-              run ::Rails.application
-            end
+            run ::Rails.application
           end
         end.to_app
       end
@@ -166,11 +149,6 @@ module Watir
           Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
         end
       end
-
-      def legacy_rails?
-        ::Rails.version.to_f < 3.0
-      end
-
     end
   end
 end

@@ -81,17 +81,7 @@ describe Watir::Rails do
       expect(described_class).not_to be_ignore_exceptions
     end
 
-    it "true if Rails.action_dispatch.show_exceptions is set to true for older Rails" do
-      allow(described_class).to receive_messages(legacy_rails?: true)
-      described_class.ignore_exceptions = nil
-      allow(::Rails).to receive_message_chain(:configuration,
-        :action_dispatch, :show_exceptions).and_return(true)
-
-      expect(described_class).to be_ignore_exceptions
-    end
-
-    it "true if Rails.action_dispatch.show_exceptions is set to true for Rails 3" do
-      allow(described_class).to receive_messages(legacy_rails?: false)
+    it "true if Rails.action_dispatch.show_exceptions is set to true" do
       described_class.ignore_exceptions = nil
       allow(::Rails).to receive_message_chain(:application,
         :config, :action_dispatch, :show_exceptions).and_return(true)
@@ -99,17 +89,7 @@ describe Watir::Rails do
       expect(described_class).to be_ignore_exceptions
     end
 
-    it "false if Rails.action_dispatch.show_exceptions is set to false for older Rails" do
-      allow(described_class).to receive_messages(legacy_rails?: true)
-      described_class.ignore_exceptions = nil
-      allow(::Rails).to receive_message_chain(:configuration,
-        :action_dispatch, :show_exceptions).and_return(false)
-
-      expect(described_class).not_to be_ignore_exceptions
-    end
-
-    it "true if Rails.action_dispatch.show_exceptions is set to false for Rails 3" do
-      allow(described_class).to receive_messages(legacy_rails?: false)
+    it "true if Rails.action_dispatch.show_exceptions is set to false" do
       described_class.ignore_exceptions = nil
       allow(::Rails).to receive_message_chain(:application,
         :config, :action_dispatch, :show_exceptions).and_return(false)
