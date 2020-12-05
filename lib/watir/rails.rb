@@ -2,8 +2,8 @@ require "watir"
 
 require "rails"
 
-require File.expand_path("rails/browser.rb", File.dirname(__FILE__))
-require File.expand_path("rails/middleware.rb", File.dirname(__FILE__))
+require_relative "rails/browser"
+require_relative "rails/middleware"
 
 module Watir
   module Rails
