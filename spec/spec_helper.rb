@@ -23,12 +23,12 @@ SimpleCov.start do
   add_filter %r{^/spec/}
 end
 
-# Make sure that fake watir gems are loaded for specs.
-$LOAD_PATH.unshift File.expand_path("support", File.dirname(__FILE__))
-
 require_relative "dummy/config/application"
 
 require "watir/rails"
+
+# Make sure that dummy selenium-webdriver driver is loaded in specs
+require "support/selenium_webdriver"
 
 RSpec.configure do |c|
   c.color = true

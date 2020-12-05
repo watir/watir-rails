@@ -1,6 +1,8 @@
 require "spec_helper"
 
 describe Watir::Browser do
+  let(:browser) { Watir::Browser.new(:dummy) }
+
   before { allow(Watir::Rails).to receive_messages(ignore_exceptions?: true) }
 
   context "#initialize" do
@@ -8,21 +10,23 @@ describe Watir::Browser do
       expect(Watir::Rails).to receive(:boot)
       expect_any_instance_of(Watir::Browser).to receive(:_original_initialize).and_call_original
 
-      Watir::Browser.new
+      browser
     end
 
     it "does not add Exception hook when exceptions are ignored" do
       allow(Watir::Rails).to receive_messages(ignore_exceptions?: true, boot: nil)
 
       expect_any_instance_of(Watir::Browser).not_to receive(:add_exception_hook)
-      Watir::Browser.new
+
+      browser
     end
 
     it "adds Exception hook when exceptions are not ignored" do
       allow(Watir::Rails).to receive_messages(ignore_exceptions?: false, boot: nil)
 
       expect_any_instance_of(Watir::Browser).to receive(:add_exception_hook)
-      Watir::Browser.new
+
+      browser
     end
   end
 
@@ -30,8 +34,6 @@ describe Watir::Browser do
     before do
       allow(Watir::Rails).to receive_messages(host: "foo.com", port: 42, boot: nil)
     end
-
-    let(:browser) { Watir::Browser.new }
 
     it "uses Rails for paths specified as an url" do
       expect(browser).to receive(:_original_goto).with("http://foo.com:42/foo/bar")
