@@ -16,18 +16,17 @@ module Watir
       end
 
       def call(env)
-        if env['PATH_INFO'] == '/__identify__'
-          [200, {}, [@app.object_id.to_s]]
-        else
-          @counter.increment
-          begin
-            @app.call(env)
-          rescue StandardError => e
-            @error = e
-            raise e
-          ensure
-            @counter.decrement
-          end
+        return [200, {}, [@app.object_id.to_s]] if env['PATH_INFO'] == '/__identify__'
+
+        @counter.increment
+
+        begin
+          @app.call(env)
+        rescue StandardError => e
+          @error = e
+          raise
+        ensure
+          @counter.decrement
         end
       end
     end
