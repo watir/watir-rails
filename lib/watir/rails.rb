@@ -14,6 +14,8 @@ module Watir
     attr_reader :port, :middleware
     attr_writer :ignore_exceptions, :server
 
+    delegate :error, :error=, :pending_requests?, to: :middleware
+
     # Start the Rails server for tests.
     # Will be called automatically by {Watir::Browser#initialize}.
     #
@@ -53,27 +55,6 @@ module Watir
     # @return [String] Resolved `localhost` address
     def localhost
       @localhost ||= Resolv.getaddress('localhost')
-    end
-
-    # Error rescued by the middleware.
-    #
-    # @return [Exception or NilClass]
-    def error
-      @middleware.error
-    end
-
-    # Returns true if there are pending requests to server.
-    #
-    # @return [Boolean]
-    def pending_requests?
-      @middleware.pending_requests?
-    end
-
-    # Set error rescued by the middleware.
-    #
-    # @param value
-    def error=(value)
-      @middleware.error = value
     end
 
     # Check if Rails exceptions should be ignored. Defaults to false.
