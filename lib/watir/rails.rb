@@ -1,6 +1,3 @@
-require "uri"
-require "net/http"
-require "rack"
 require "watir"
 
 require "rails"
