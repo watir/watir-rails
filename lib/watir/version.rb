@@ -1,5 +1,5 @@
 module Watir
-  class Rails
+  module Rails
     VERSION = "2.2.2"
   end
 end

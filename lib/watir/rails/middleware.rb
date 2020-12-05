@@ -1,7 +1,7 @@
 require "concurrent-ruby"
 
 module Watir
-  class Rails
+  module Rails
     # @private
     class Middleware
       attr_accessor :error

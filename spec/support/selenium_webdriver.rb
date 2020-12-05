@@ -1,5 +1,5 @@
 module Watir
-  class Rails
+  module Rails
     module Dummy
       # Null object that acts as a test selenium driver
       class Driver
