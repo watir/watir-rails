@@ -129,21 +129,7 @@ module Watir
 
     def server
       @server ||= lambda do |app, port|
-        begin
-          require 'rack/handler/thin'
-          Thin::Logging.silent = true
-          return Rack::Handler::Thin.run(app, :Port => port)
-        rescue LoadError
-        end
-
-        begin
-          require 'rack/handler/puma'
-          return Rack::Handler::Puma.run(app, :Port => port, :Silent => true)
-        rescue LoadError
-        end
-
-        require 'rack/handler/webrick'
-        Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
+        Rack::Handler.default.run(app, Port: port, Silent: true, AccessLog: [], Logger: Logger.new(nil))
       end
     end
   end
