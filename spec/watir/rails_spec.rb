@@ -58,16 +58,11 @@ describe Watir::Rails do
   end
 
   context ".server" do
-    let(:app) { instance_double(::Rails::Application) }
     let(:server) do
       ->(app, port) { Rack::Handler.get(:webrick).run(app, Port: port, AccessLog: [], Logger: Logger.new(nil)) }
     end
 
-    before do
-      allow(::Rails).to receive(:application).and_return(instance_double(::Rails::Application))
-
-      described_class.server = server
-    end
+    before { described_class.server = server }
 
     it "allows to customize server" do
       expect(server).to receive(:call).with(Watir::Rails::Middleware, Integer).once.and_call_original

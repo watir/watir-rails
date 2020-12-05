@@ -26,14 +26,31 @@ jobs:
           - { rails-version: '6.0', ruby-version: '2.4' }
           - { rails-version: '6.0', ruby-version: '2.3' }
           - { rails-version: '6.0', ruby-version: '2.2' }
+          # rails-5.2 requires safe navigation (avaiable since ruby-2.3)
+          - { rails-version: '5.2', ruby-version: '2.2' }
           # rails-4.x requires BigDecimal.new (dropped in ruby-2.7)
           - { rails-version: '4.2', ruby-version: '2.7' }
           - { rails-version: '4.1', ruby-version: '2.7' }
           - { rails-version: '4.0', ruby-version: '2.7' }
-          # The issue on rails-3.[0-2] + head is json-1.8.6 compat, we could
-          # potentially workaround it using, for example, Oj
+          # rails-4.[0-1] fails with https://github.com/rails/rails/pull/25161
+          # on ruby >= 2.4
+          - { rails-version: '4.1', ruby-version: '2.7' }
+          - { rails-version: '4.1', ruby-version: '2.6' }
+          - { rails-version: '4.1', ruby-version: '2.5' }
+          - { rails-version: '4.1', ruby-version: '2.4' }
+          - { rails-version: '4.0', ruby-version: '2.7' }
+          - { rails-version: '4.0', ruby-version: '2.6' }
+          - { rails-version: '4.0', ruby-version: '2.5' }
+          - { rails-version: '4.0', ruby-version: '2.4' }
+          # rails-3.2 requires BigDecimal.new (dropped in ruby-2.7)
+          - { rails-version: '3.2', ruby-version: '2.7' }
+          # rails-3.1 fails with `circular argument reference - now`
+          # in `ActiveSupport::TimeZone` on >= 2.7
           - { rails-version: '3.1', ruby-version: '2.7' }
+          # rails-3.0 requires BigDecimal.yaml_as (dropped in 2.5)
           - { rails-version: '3.0', ruby-version: '2.7' }
+          - { rails-version: '3.0', ruby-version: '2.6' }
+          - { rails-version: '3.0', ruby-version: '2.5' }
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_${{ matrix.rails-version }}.gemfile
 
