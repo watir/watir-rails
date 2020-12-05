@@ -88,11 +88,7 @@ module Watir
     #
     # @return [Object] Rails Rack app.
     def app
-      @app ||= Rack::Builder.new {
-        map '/' do
-          run ::Rails.application
-        end
-      }.to_app
+      @app ||= ::Rails.application
     end
 
     private
