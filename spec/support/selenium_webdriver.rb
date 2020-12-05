@@ -3,7 +3,7 @@ module Watir
     module Dummy
       # Null object that acts as a test selenium driver
       class Driver
-        def method_missing(*_args, **_kwargs, &_block)
+        def method_missing(*_args, **_kwargs, &_block) # rubocop:disable Style/MethodMissingSuper
           self
         end
 
@@ -22,7 +22,7 @@ module Monkey
         # Dummy capabilities for our dummy selenium driver
         module Capabilities
           def dummy(opts = {})
-            new({browser_name: "dummy"}.merge(opts))
+            new({browser_name: 'dummy'}.merge(opts))
           end
         end
       end

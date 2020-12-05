@@ -1,0 +1,48 @@
+AllCops:
+  TargetRubyVersion: 2.2
+  Exclude:
+    - vendor/**/*
+    - gemfiles/**/*
+    - spec/dummy/**/*
+
+Metrics/LineLength:
+  Max: 120
+
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
+
+# Default: 17
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/ClassLength:
+  Max: 93
+
+# Default: 7
+Metrics/CyclomaticComplexity:
+  Max: 9
+
+# Configuration parameters: CountComments.
+Metrics/MethodLength:
+  Max: 18
+
+# Default: 8
+Metrics/PerceivedComplexity:
+  Max: 10
+
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+
+Style/CommentedKeyword:
+  Enabled: false
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/GlobalVars:
+  AllowedVariables:
+    - $browser

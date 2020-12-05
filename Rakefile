@@ -32,27 +32,27 @@ RAILS_SKIP_ARGUMENTS = %w[
   yarn
 ].freeze
 
-desc "Creates dummy app for testing"
+desc 'Creates dummy app for testing'
 task :create_dummy_app do
-  app_path = File.expand_path("spec/dummy", __dir__)
+  app_path = File.expand_path('spec/dummy', __dir__)
 
   FileUtils.rm_rf(app_path)
 
   skip_args = RAILS_SKIP_ARGUMENTS.map { |arg| "--skip-#{arg}" }
 
-  raise "Cannot create dummy app" unless system("bundle", "exec", "rails", "new", app_path, *skip_args)
+  raise 'Cannot create dummy app' unless system('bundle', 'exec', 'rails', 'new', app_path, *skip_args)
 
-  fixtures_path = File.expand_path("spec/fixtures/dummy", __dir__)
+  fixtures_path = File.expand_path('spec/fixtures/dummy', __dir__)
 
   FileUtils.cp_r("#{fixtures_path}/.", app_path)
 end
 
-require "rspec/core/rake_task"
+require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 
 task default: %i[create_dummy_app spec]
 task release: %i[create_dummy_app spec]
-require "bundler/gem_tasks"
+require 'bundler/gem_tasks'
 
-require "yard"
+require 'yard'
 YARD::Rake::YardocTask.new
