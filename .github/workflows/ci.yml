@@ -7,7 +7,8 @@ name: Run watir-rails CI
       - master
 
 jobs:
-  test:
+  test_rails_versions:
+    name: Test ruby/rails version matrix
     runs-on: ubuntu-latest
     # ruby-3 it's not supported by selenium-webdriver yet
     # See https://github.com/SeleniumHQ/selenium/issues/9001
@@ -72,10 +73,32 @@ jobs:
           flag-name: ruby-${{ matrix.ruby-version }}_rails-${{ matrix.rails-version }}
 
   coveralls:
-    needs: test
+    name: Send coverage results to Coveralls
+    needs: test_rails_versions
     runs-on: ubuntu-latest
     steps:
     - uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
+
+  test_rack_handlers:
+    name: Test different rack handlers
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rack-handler: ['puma', 'falcon', 'unicorn', 'thin']
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.rack-handler }}.gemfile
+      RACK_HANDLER: ${{ matrix.rack-handler }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+          bundler-cache: true
+
+      - run: bundle exec rake

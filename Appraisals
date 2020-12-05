@@ -7,3 +7,12 @@ RAILS_VERSIONS.each do |rails_version|
     gem "webrick"
   end
 end
+
+SERVER_NAMES = %w[puma falcon unicorn thin]
+
+SERVER_NAMES.each do |server_name|
+  appraise server_name do
+    gem server_name
+    gem 'rack-handlers' if server_name == "unicorn"
+  end
+end
