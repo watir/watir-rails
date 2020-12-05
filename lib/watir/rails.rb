@@ -130,6 +130,11 @@ module Watir
 
     def server
       @server ||= lambda do |app, localhost, port|
+        if Rack::Handler.default.name == "Rack::Handler::Puma"
+          # HACK: https://github.com/puma/puma/pull/2521
+          localhost = URI::HTTP.build(host: localhost).host
+        end
+
         Rack::Handler.default.run(app, Host: localhost, Port: port, Silent: true, AccessLog: [], Logger: Logger.new(nil))
       end
     end
