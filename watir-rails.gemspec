@@ -19,6 +19,8 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "rack"
   gem.add_dependency "rails", ">= 3.1"
+  # Rails dependency since 5.0
+  gem.add_dependency "concurrent-ruby", ">= 1.0"
   gem.add_dependency "watir", ">= 6.0.0.beta4"
 
   gem.add_development_dependency "yard"

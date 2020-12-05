@@ -1,29 +1,14 @@
+require "concurrent-ruby"
+
 module Watir
   class Rails
     # @private
     class Middleware
-      class PendingRequestsCounter
-        attr_reader :value
-
-        def initialize
-          @value = 0
-          @mutex = Mutex.new
-        end
-
-        def increment
-          @mutex.synchronize { @value += 1 }
-        end
-
-        def decrement
-          @mutex.synchronize { @value -= 1 }
-        end
-      end
-
       attr_accessor :error
 
       def initialize(app)
         @app = app
-        @counter = PendingRequestsCounter.new
+        @counter = Concurrent::AtomicFixnum.new(0)
       end
 
       def pending_requests?
