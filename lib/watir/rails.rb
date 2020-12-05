@@ -1,12 +1,13 @@
-require "resolv"
-require "watir"
+require 'resolv'
+require 'watir'
 
-require "rails"
+require 'rails'
 
-require_relative "rails/browser"
-require_relative "rails/middleware"
+require_relative 'rails/browser'
+require_relative 'rails/middleware'
 
 module Watir
+  # Starts Rails application
   module Rails
     extend self
 
@@ -30,7 +31,7 @@ module Watir
         Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
       end
     rescue Timeout::Error
-      raise Timeout::Error, "Rails Rack application timed out during boot"
+      raise Timeout::Error, 'Rails Rack application timed out during boot'
     end
 
     # Host for Rails app under test. Default is {.localhost}.
@@ -51,7 +52,7 @@ module Watir
     #
     # @return [String] Resolved `localhost` address
     def localhost
-      @localhost ||= Resolv.getaddress("localhost")
+      @localhost ||= Resolv.getaddress('localhost')
     end
 
     # Error rescued by the middleware.
@@ -97,22 +98,20 @@ module Watir
 
       res = Net::HTTP.start(localhost, @port) { |http| http.get('/__identify__') }
 
-      if res.is_a?(Net::HTTPSuccess) or res.is_a?(Net::HTTPRedirection)
-        return res.body == @app.object_id.to_s
-      end
+      return res.body == @app.object_id.to_s if res.is_a?(Net::HTTPSuccess) || res.is_a?(Net::HTTPRedirection)
     rescue Errno::ECONNREFUSED, Errno::EBADF, EOFError
-      return false
+      false
     end
 
     # Rails app under test.
     #
     # @return [Object] Rails Rack app.
     def app
-      @app ||= Rack::Builder.new do
-        map "/" do
+      @app ||= Rack::Builder.new {
+        map '/' do
           run ::Rails.application
         end
-      end.to_app
+      }.to_app
     end
 
     private
@@ -130,12 +129,19 @@ module Watir
 
     def server
       @server ||= lambda do |app, localhost, port|
-        if Rack::Handler.default.name == "Rack::Handler::Puma"
+        if Rack::Handler.default.name == 'Rack::Handler::Puma'
           # HACK: https://github.com/puma/puma/pull/2521
           localhost = URI::HTTP.build(host: localhost).host
         end
 
-        Rack::Handler.default.run(app, Host: localhost, Port: port, Silent: true, AccessLog: [], Logger: Logger.new(nil))
+        Rack::Handler.default.run(
+          app,
+          Host: localhost,
+          Port: port,
+          Silent: true,
+          AccessLog: [],
+          Logger: Logger.new(nil)
+        )
       end
     end
   end

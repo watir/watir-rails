@@ -1,11 +1,11 @@
-require "simplecov"
+require 'simplecov'
 
-if ENV["CI"]
-  require "simplecov-lcov"
+if ENV['CI']
+  require 'simplecov-lcov'
 
   SimpleCov::Formatter::LcovFormatter.config do |c|
     c.report_with_single_file = true
-    c.single_report_path = "coverage/lcov.info"
+    c.single_report_path = 'coverage/lcov.info'
   end
 
   SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
@@ -23,12 +23,12 @@ SimpleCov.start do
   add_filter %r{^/spec/}
 end
 
-require_relative "dummy/config/environment"
+require_relative 'dummy/config/environment'
 
-require "watir/rails"
+require 'watir/rails'
 
 # Make sure that dummy selenium-webdriver driver is loaded in specs
-require "support/selenium_webdriver"
+require 'support/selenium_webdriver'
 
 RSpec.configure do |c|
   c.color = true
