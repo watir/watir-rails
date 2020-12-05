@@ -21,17 +21,17 @@ module Watir
     #
     # @param [Integer] port port for the Rails up to run on. If omitted random port will be picked.
     def boot(port: nil)
+      return if (@port == port || (port.nil? && @port)) && running?
+
       @port = port || find_available_port
 
-      unless running?
-        @middleware = Middleware.new(app)
+      @middleware = Middleware.new(app)
 
-        @server_thread = Thread.new do
-          server.call @middleware, localhost, @port
-        end
-
-        Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
+      @server_thread = Thread.new do
+        server.call @middleware, localhost, @port
       end
+
+      Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
     rescue Timeout::Error
       raise Timeout::Error, 'Rails Rack application timed out during boot'
     end
