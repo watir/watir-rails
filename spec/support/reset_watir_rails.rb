@@ -13,6 +13,8 @@ RSpec.configure do |c|
 
   c.after do
     if server_thread && server_thread.alive?
+      # Windows can't kill stopped thread apparently
+      server_thread.wakeup if server_thread.stop?
       server_thread.kill
       server_thread.join
     end
