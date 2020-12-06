@@ -18,7 +18,10 @@ if ENV["CI"]
   end
 end
 
-SimpleCov.start
+SimpleCov.start do
+  enable_coverage :branch if respond_to?(:enable_coverage)
+  add_filter %r{^/spec/}
+end
 
 # Make sure that fake watir gems are loaded for specs.
 $LOAD_PATH.unshift File.expand_path("support", File.dirname(__FILE__))
