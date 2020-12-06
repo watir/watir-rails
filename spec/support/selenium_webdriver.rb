@@ -3,6 +3,24 @@ module Watir
     module Dummy
       # Null object that acts as a test selenium driver
       class Driver
+        class WindowHandles < Array
+          def include?(_element)
+            true
+          end
+        end
+
+        def to(url)
+          Net::HTTP.get(URI(url))
+        end
+
+        def alert
+          raise Selenium::WebDriver::Error::NoSuchAlertError
+        end
+
+        def window_handles
+          WindowHandles.new
+        end
+
         def method_missing(*_args, **_kwargs, &_block) # rubocop:disable Style/MethodMissingSuper
           self
         end

@@ -8,11 +8,10 @@ RAILS_VERSIONS.each do |rails_version|
   end
 end
 
-SERVER_NAMES = %w[puma falcon unicorn thin].freeze
+SERVER_NAMES = %w[puma falcon thin].freeze
 
 SERVER_NAMES.each do |server_name|
   appraise server_name do
     gem server_name
-    gem 'rack-handlers' if server_name == 'unicorn'
   end
 end

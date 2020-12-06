@@ -1,24 +1,7 @@
 require 'spec_helper'
 
 describe Watir::Rails do
-  # We don't want memoization here, so no `let`
-  def server_thread
-    described_class.instance_variable_get(:@server_thread)
-  end
-
-  before do
-    allow(described_class).to receive(:warn)
-    described_class.ignore_exceptions = nil
-    described_class.instance_eval { @middleware = @port = @server_thread = @localhost = @host = @app = nil }
-  end
-
-  after do
-    if server_thread && server_thread.alive?
-      server_thread.kill
-      server_thread.join
-    end
-    described_class.instance_eval { @middleware = @port = @server_thread = @host = @app = nil }
-  end
+  before { allow(described_class).to receive(:warn) }
 
   context '.boot' do
     it 'starts the server unless already running' do

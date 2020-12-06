@@ -78,7 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        rack-handler: ['puma', 'falcon', 'unicorn', 'thin']
+        rack-handler: ['puma', 'falcon', 'thin']
 
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.rack-handler }}.gemfile
