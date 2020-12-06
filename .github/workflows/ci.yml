@@ -73,6 +73,28 @@ jobs:
           flag-name: ruby-${{ matrix.ruby-version }}_rails-${{ matrix.rails-version }}
 
 
+  test_different_os:
+    name: Test different OS on latest stable ruby/rails
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ['ubuntu-16.04', 'ubuntu-18.04', 'ubuntu-20.04', 'macos-10.15', 'macos-11.0', 'windows-2019']
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_6.0.gemfile
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+          bundler-cache: true
+
+      - if: ${{ startsWith(matrix.os, 'macos-') }}
+        run: sudo ifconfig lo0 alias 127.0.0.13
+
+      - run: bundle exec rake
+
   test_rack_handlers:
     name: Test different rack handlers
     runs-on: ubuntu-latest

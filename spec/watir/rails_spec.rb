@@ -107,12 +107,13 @@ describe Watir::Rails do
 
         context 'and port is not available' do
           let!(:tcpserver) { TCPServer.new(described_class.localhost, random_port) }
+          let(:expected_error) { Gem.win_platform? ? Errno::EACCES : Errno::EADDRINUSE }
 
           after { tcpserver.close }
 
           it 'fails with proper exception' do
             expect(described_class).not_to receive(:find_available_port)
-            expect { described_class.boot(port: random_port) }.to raise_error(Errno::EADDRINUSE)
+            expect { described_class.boot(port: random_port) }.to raise_error(expected_error)
           end
         end
       end
