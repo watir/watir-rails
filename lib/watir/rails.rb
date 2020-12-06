@@ -17,7 +17,7 @@ module Watir
     delegate :error, :error=, :pending_requests?, to: :middleware
 
     # Start the Rails server for tests.
-    # Will be called automatically by {Watir::Browser#initialize}.
+    # Will be called automatically by Watir::Rails::Browser#initialize.
     #
     # @param [Integer] port port for the Rails up to run on. If omitted random port will be picked.
     def boot(port: nil)

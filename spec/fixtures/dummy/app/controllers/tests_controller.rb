@@ -6,4 +6,8 @@ class TestsController < ApplicationController
       render plain: 'Hello world!'
     end
   end
+
+  def raise_error
+    raise 'watir-rails test message'
+  end
 end

@@ -29,6 +29,8 @@ require 'watir/rails'
 
 # Make sure that dummy selenium-webdriver driver is loaded in specs
 require 'support/selenium_webdriver'
+# Reset watir-rails state after examples run
+require 'support/reset_watir_rails'
 
 RSpec.configure do |c|
   c.color = true
