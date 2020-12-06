@@ -31,6 +31,20 @@ describe Watir::Rails::Browser do
       expect { browser.goto('/tests/raise_error') }.to raise_error(RuntimeError, 'watir-rails test message')
       expect(Watir::Rails.error).to be_nil
     end
+
+    it 'handles `Watir::Rails.ignore_exceptions?` changes in runtime' do
+      Watir::Rails.ignore_exceptions = false
+      expect { browser.goto('/tests/raise_error') }.to raise_error(RuntimeError)
+
+      Watir::Rails.ignore_exceptions = true
+      expect { browser.goto('/tests/raise_error') }.not_to raise_error
+
+      Watir::Rails.ignore_exceptions = false
+      expect { browser.goto('/tests/raise_error') }.to raise_error(RuntimeError)
+
+      Watir::Rails.ignore_exceptions = true
+      expect { browser.goto('/tests/raise_error') }.not_to raise_error
+    end
   end
 
   context '#goto' do

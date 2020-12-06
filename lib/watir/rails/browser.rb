@@ -7,7 +7,7 @@ module Watir
       def initialize(*args)
         Rails.boot
         super
-        add_exception_hook unless Rails.ignore_exceptions?
+        add_exception_hook
       end
 
       # Opens the url with the browser instance.
@@ -29,10 +29,11 @@ module Watir
 
       def add_exception_hook
         after_hooks.add do
-          if (error = Rails.error)
-            Rails.error = nil
-            raise error
-          end
+          next if Watir::Rails.ignore_exceptions?
+          next unless (error = Watir::Rails.error)
+
+          Watir::Rails.error = nil
+          raise error
         end
       end
     end
