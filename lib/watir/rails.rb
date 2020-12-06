@@ -21,19 +21,15 @@ module Watir
     #
     # @param [Integer] port port for the Rails up to run on. If omitted random port will be picked.
     def boot(port: nil)
-      return if (@port == port || (port.nil? && @port)) && running?
+      return if @port && (port.to_i.zero? || @port == port) && running?
 
-      @port = port || find_available_port
+      @port = port.to_i.zero? ? find_available_port : port
 
       @middleware = Middleware.new(app)
 
-      @server_thread = Thread.new do
-        server.call @middleware, localhost, @port
-      end
+      start_server
 
-      Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
-    rescue Timeout::Error
-      raise Timeout::Error, 'Rails Rack application timed out during boot'
+      wait_for_server
     end
 
     # Host for Rails app under test. Default is {.localhost}.
@@ -75,12 +71,15 @@ module Watir
     #
     # @return [Boolean] true when Rails app under test is running, false otherwise.
     def running?
-      return false if @server_thread && @server_thread.join(0)
+      return false if @server_thread.nil?
+      return false unless @server_thread.alive?
 
-      res = Net::HTTP.start(localhost, @port) { |http| http.get('/__identify__') }
+      res = Net::HTTP.start(localhost, @port, open_timeout: 1, read_timeout: 1) do |http|
+        http.get('/__identify__')
+      end
 
-      return res.body == @app.object_id.to_s if res.is_a?(Net::HTTPSuccess) || res.is_a?(Net::HTTPRedirection)
-    rescue Errno::ECONNREFUSED, Errno::EBADF, EOFError
+      res.is_a?(Net::HTTPOK) && res.body == app.object_id.to_s
+    rescue Errno::ECONNREFUSED, Errno::EBADF, EOFError, Net::ReadTimeout, Net::OpenTimeout
       false
     end
 
@@ -97,9 +96,30 @@ module Watir
       60
     end
 
+    def start_server
+      @server_thread = Thread.new do
+        Thread.current.abort_on_exception = true
+        server.call(@middleware, localhost, @port)
+      end
+    end
+
+    def wait_for_server
+      Timeout.timeout(boot_timeout) do
+        loop do
+          break if running?
+
+          @server_thread.run
+        end
+      end
+    rescue Timeout::Error
+      raise Timeout::Error, 'Rails Rack application timed out during boot'
+    rescue ThreadError
+      raise ThreadError, 'Rails Rack application died on start'
+    end
+
     def find_available_port
       server = TCPServer.new(localhost, 0)
-      server.addr[1]
+      server.local_address.ip_port
     ensure
       server.close if server
     end

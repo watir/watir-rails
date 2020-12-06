@@ -1,52 +1,188 @@
 require 'spec_helper'
 
 describe Watir::Rails do
-  before { allow(described_class).to receive(:warn) }
+  let(:webrick_logger) { StringIO.new }
+  let(:wait_for_webrick?) { true }
+
+  def run_with_rack_handler(app, localhost, port)
+    Rack::Handler.get(:webrick).run(
+      app,
+      Host: localhost,
+      Port: port,
+      AccessLog: [],
+      Logger: Logger.new(webrick_logger)
+    )
+  end
+
+  # Wait for Webrick to start
+  def wait_for_webrick
+    return unless wait_for_webrick?
+
+    loop do
+      break unless server_thread.alive?
+      break if webrick_logger.string.include?('WEBrick::HTTPServer#start')
+
+      server_thread.run
+    end
+  end
 
   context '.boot' do
-    it 'starts the server unless already running' do
-      server = ->(app, port) {}
-      allow(described_class).to receive_messages(app: double('app'), find_available_port: 42)
-      expect(described_class).to receive(:running?).twice.and_return(false, true)
-      expect(described_class).to receive(:server).and_return(server)
-      expect(server).to receive(:call).once
-
-      described_class.boot
-      wait_until_server_started
+    let(:fake_server) { method(:run_with_rack_handler) }
+    let(:localhost) { '127.0.0.13' }
+    let(:random_port) do
+      server = TCPServer.new(described_class.localhost, 0)
+      port = server.local_address.ip_port
+      server.close
+      port
     end
 
-    it 'does nothing if server is already running' do
-      allow(described_class).to receive_messages(app: double('app'), find_available_port: 42)
-      expect(described_class).to receive(:running?).once.and_return(true)
-      expect(described_class).not_to receive(:server)
-
-      described_class.boot
+    before do
+      described_class.server = fake_server
+      allow(Resolv).to receive(:getaddress).and_return(localhost)
     end
 
-    it "raises an error if Rails won't boot with timeout" do
-      server = ->(app, port) {}
-      allow(described_class).to receive_messages(app: double('app'),
-                                                 find_available_port: 42, boot_timeout: 0.01)
-      expect(described_class).to receive(:running?).at_least(:twice).and_return(false)
-      expect(described_class).to receive(:server).and_return(server)
-      expect(server).to receive(:call)
+    shared_examples 'when specific port is not requested' do |requested_port:|
+      context 'and server is not running' do
+        context 'and free port can be found' do
+          it 'starts the server on a random free port' do
+            expect(described_class).not_to be_running
 
-      expect {
-        described_class.boot
-      }.to raise_error(Timeout::Error)
+            expect(described_class).to receive(:find_available_port).and_return(random_port)
+            expect(fake_server).to receive(:call).with(anything, localhost, random_port).once.and_call_original
+
+            described_class.boot(port: requested_port)
+
+            expect(described_class).to be_running
+            expect(described_class.port).to eq(random_port)
+          end
+        end
+
+        context 'and free port cannot be found' do
+          before do
+            allow(TCPServer).to receive(:new).with(described_class.localhost, 0)
+                                             .and_raise(RuntimeError, 'cannot find port')
+          end
+
+          it 'fails with proper exception' do
+            expect { described_class.boot }.to raise_error(RuntimeError, 'cannot find port')
+          end
+        end
+      end
+
+      context 'and server is running' do
+        before do
+          described_class.boot
+          wait_for_webrick
+        end
+
+        it 'does not start server' do
+          expect(described_class).to be_running
+          expect(fake_server).not_to receive(:call)
+          expect(described_class).not_to receive(:find_available_port)
+        end
+      end
     end
 
-    def wait_until_server_started
-      Timeout.timeout(10) { sleep 0.1 while server_thread.alive? }
+    context 'when `port: nil` is requested' do
+      include_examples 'when specific port is not requested', requested_port: nil
+    end
+
+    context 'when `port: 0` is requested' do
+      include_examples 'when specific port is not requested', requested_port: 0
+    end
+
+    context 'when specific port is requested' do
+      context 'and server is not running' do
+        context 'and port is available' do
+          it 'starts the server on a provided port' do
+            expect(described_class).not_to receive(:find_available_port)
+            expect(fake_server).to receive(:call).with(anything, localhost, random_port).once.and_call_original
+
+            described_class.boot(port: random_port)
+
+            expect(described_class).to be_running
+            expect(described_class.port).to eq(random_port)
+          end
+        end
+
+        context 'and port is not available' do
+          let!(:tcpserver) { TCPServer.new(described_class.localhost, random_port) }
+
+          after { tcpserver.close }
+
+          it 'fails with proper exception' do
+            expect(described_class).not_to receive(:find_available_port)
+            expect { described_class.boot(port: random_port) }.to raise_error(Errno::EADDRINUSE)
+          end
+        end
+      end
+
+      context 'and server is already running' do
+        context 'on the same port' do
+          before do
+            described_class.boot(port: random_port)
+            wait_for_webrick
+          end
+
+          it 'does not start server' do
+            expect(described_class).to be_running
+            expect(described_class.port).to eq(random_port)
+
+            expect(fake_server).not_to receive(:call)
+            expect(described_class).not_to receive(:find_available_port)
+
+            described_class.boot(port: random_port)
+          end
+        end
+
+        context 'on the different port' do
+          before do
+            described_class.boot
+            wait_for_webrick
+          end
+
+          it 'starts server on the requested port' do
+            expect(described_class).to be_running
+            expect(described_class.port).not_to eq(random_port)
+
+            expect(fake_server).to receive(:call).with(anything, localhost, random_port).and_call_original
+
+            described_class.boot(port: random_port)
+
+            expect(described_class).to be_running
+            expect(described_class.port).to eq(random_port)
+          end
+        end
+      end
+    end
+
+    context 'when server will not boot during timeout' do
+      let(:fake_server) { ->(_app, _localhost, _port) { loop { Thread.stop } } }
+
+      before { allow(described_class).to receive(:boot_timeout).and_return(0.01) }
+
+      it 'raises Timeout::Error' do
+        expect(described_class).not_to be_running
+
+        expect { described_class.boot }.to raise_error(Timeout::Error, 'Rails Rack application timed out during boot')
+      end
+    end
+
+    context 'when application dies during boot' do
+      let(:fake_server) { ->(_app, _localhost, _port) { Thread.current.kill } }
+
+      it 'raises ThreadError' do
+        expect(described_class).not_to be_running
+
+        expect(fake_server).to receive(:call).and_call_original
+
+        expect { described_class.boot }.to raise_error(ThreadError, 'Rails Rack application died on start')
+      end
     end
   end
 
   context '.server' do
-    let(:server) do
-      lambda do |app, localhost, port|
-        Rack::Handler.get(:webrick).run(app, Host: localhost, Port: port, AccessLog: [], Logger: Logger.new(nil))
-      end
-    end
+    let(:server) { method(:run_with_rack_handler) }
     let(:localhost) { '127.0.0.13' }
 
     before do
@@ -103,59 +239,101 @@ describe Watir::Rails do
 
     it 'true if Rails.action_dispatch.show_exceptions is set to true' do
       described_class.ignore_exceptions = nil
-      allow(::Rails).to receive_message_chain(:application,
-                                              :config, :action_dispatch, :show_exceptions).and_return(true)
+      ::Rails.application.config.action_dispatch.show_exceptions = true
 
+      expect(described_class).to receive(:warn)
+        .with('[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.')
       expect(described_class).to be_ignore_exceptions
     end
 
     it 'true if Rails.action_dispatch.show_exceptions is set to false' do
       described_class.ignore_exceptions = nil
-      allow(::Rails).to receive_message_chain(:application,
-                                              :config, :action_dispatch, :show_exceptions).and_return(false)
+      ::Rails.application.config.action_dispatch.show_exceptions = false
 
       expect(described_class).not_to be_ignore_exceptions
     end
   end
 
   context '.running?' do
-    after { described_class.instance_variable_set(:@server_thread, nil) }
+    before { allow(described_class).to receive(:wait_for_server) }
 
-    it 'false if server thread is running' do
-      fake_thread = instance_double(Thread, join: :still_running, alive?: false)
-      described_class.instance_variable_set(:@server_thread, fake_thread)
+    context 'when server thread has issues' do
+      context 'when server thread is nil' do
+        let(:fake_server_thread) { nil }
 
-      expect(described_class).not_to be_running
+        it { expect(described_class).not_to be_running }
+      end
+
+      context 'when server thread is not alive' do
+        before do
+          described_class.server = ->(_app, _localhost, _port) { Thread.stop }
+          described_class.boot
+          server_thread.kill
+          server_thread.join
+        end
+
+        it { expect(described_class).not_to be_running }
+      end
     end
 
-    it 'false if server cannot be accessed' do
-      fake_thread = instance_double(Thread, join: nil, alive?: false)
-      described_class.instance_variable_set(:@server_thread, fake_thread)
+    context 'when server thread is running' do
+      let(:fake_app) { 'I am fake app'.freeze }
+      let(:fake_middleware) do
+        local_server_response = server_response
+        ->(_env) { local_server_response }
+      end
+      let(:fake_server) do
+        ->(_app, localhost, port) { run_with_rack_handler(fake_middleware, localhost, port) }
+      end
 
-      expect(Net::HTTP).to receive(:start).and_raise Errno::ECONNREFUSED
-      expect(described_class).not_to be_running
-    end
+      before do
+        described_class.server = fake_server
+        allow(described_class).to receive(:app).and_return(fake_app)
+        described_class.boot
 
-    it 'false if server response is not success' do
-      fake_thread = instance_double(Thread, join: nil, alive?: false)
-      described_class.instance_variable_set(:@server_thread, fake_thread)
-      app = double('app')
-      described_class.instance_variable_set(:@app, app)
+        wait_for_webrick
+      end
 
-      response = double(Net::HTTPSuccess, is_a?: false)
-      expect(Net::HTTP).to receive(:start).and_return response
-      expect(described_class).not_to be_running
-    end
+      context 'when refusing connections' do
+        let(:fake_server) do
+          lambda do |_app, _localhost, _port|
+            loop { Thread.stop }
+          end
+        end
+        let(:wait_for_webrick?) { false }
 
-    it 'true if server response is success' do
-      fake_thread = instance_double(Thread, join: nil, alive?: false)
-      described_class.instance_variable_set(:@server_thread, fake_thread)
-      app = double('app')
-      described_class.instance_variable_set(:@app, app)
+        it { expect(described_class).not_to be_running }
+      end
 
-      response = double(Net::HTTPSuccess, is_a?: true, body: app.object_id.to_s)
-      expect(Net::HTTP).to receive(:start).and_return response
-      expect(described_class).to be_running
+      context 'when not Net::HTTPSuccess with correct response' do
+        let(:server_response) { [500, {}, [fake_app.object_id.to_s]] }
+
+        it { expect(described_class).not_to be_running }
+      end
+
+      context 'when Net::HTTPOK with wrong response' do
+        let(:server_response) { [200, {}, ['wrong']] }
+
+        it { expect(described_class).not_to be_running }
+      end
+
+      context 'when Net::HTTPSuccess and not Net::HTTPOK with correct response' do
+        let(:fake_middleware) do
+          local_fake_app = fake_app
+          ->(_env) { [201, {}, [local_fake_app.object_id.to_s]] }
+        end
+
+        it { expect(described_class).not_to be_running }
+      end
+
+      context 'when Net::HTTPOK with correct response' do
+        let(:fake_middleware) do
+          local_fake_app = fake_app
+          ->(_env) { [200, {}, [local_fake_app.object_id.to_s]] }
+        end
+
+        it { expect(described_class).to be_running }
+      end
     end
   end
 end
