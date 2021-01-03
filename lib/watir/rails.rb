@@ -12,7 +12,7 @@ module Watir
     extend self
 
     attr_reader :port, :middleware
-    attr_writer :ignore_exceptions, :server
+    attr_writer :ignore_exceptions, :server, :host
 
     delegate :error, :error=, :pending_requests?, to: :middleware
 
@@ -37,13 +37,6 @@ module Watir
     # @return [String] Host for Rails app under test.
     def host
       @host || URI::HTTP.build(host: localhost).host
-    end
-
-    # Set host for Rails app. Will be used by {Browser#goto} method.
-    #
-    # @param [String] host host to use when using {Browser#goto}.
-    def host=(host)
-      @host = host
     end
 
     # Local host for Rails app under test.
