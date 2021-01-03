@@ -12,19 +12,13 @@ module Watir
         add_exception_hook
       end
 
-      # Opens the url with the browser instance.
-      # Will add {Rails.host} and {Rails.port} to the url when path is specified.
+      # Opens the url or Rails app's under test path with the browser instance.
       #
-      # @example Go to the regular url:
-      #   browser.goto "http://google.com"
-      #
-      # @example Go to the controller path:
-      #   browser.goto home_path
+      # @see Watir::Rails.url
       #
       # @param [String] url URL to be navigated to.
       def goto(url)
-        url = "http://#{Rails.host}:#{Rails.port}#{url}" unless url =~ /^(about|data|https?):/i
-        super(url)
+        super(Rails.url(url))
       end
 
       private

@@ -82,6 +82,25 @@ module Watir
       @app ||= ::Rails.application
     end
 
+    # Converts rails path into accessible Watir::Rails URL
+    # does nothing if path is an absolute URL already
+    #
+    # @example Go to the regular url:
+    #   browser.goto "http://google.com"
+    #
+    # @example Go to the controller path:
+    #   browser.goto home_path
+    #
+    # @param [String] path path to be converted to Watir::Rails URL
+    def url(path)
+      uri = URI.parse(path)
+      return path if uri.absolute?
+
+      userinfo, _, host = self.host.rpartition('@') # rubocop:disable Style/RedundantSelf
+
+      URI::HTTP.build(host: host, port: port, userinfo: userinfo).merge(uri).to_s
+    end
+
     private
 
     def boot_timeout
