@@ -17,6 +17,7 @@ describe Watir::Rails do
       server_thread.kill
       server_thread.join
     end
+    described_class.instance_eval { @middleware = @port = @server_thread = @host = @app = nil }
   end
 
   context ".boot" do
@@ -112,6 +113,8 @@ describe Watir::Rails do
   end
 
   context ".running?" do
+    after { described_class.instance_variable_set(:@server_thread, nil) }
+
     it "false if server thread is running" do
       fake_thread = instance_double(Thread, join: :still_running, alive?: false)
       described_class.instance_variable_set(:@server_thread, fake_thread)

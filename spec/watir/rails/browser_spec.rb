@@ -65,4 +65,15 @@ describe Watir::Browser do
       browser.goto("http://foo.com:42/xxx:yyy")
     end
   end
+
+  context "with real Rails app" do
+    let(:browser) { Watir::Browser.new(:firefox, headless: true) }
+
+    after { browser.close }
+
+    it "works" do
+      browser.goto("/tests")
+      expect(browser.text).to eq("Hello world!")
+    end
+  end
 end

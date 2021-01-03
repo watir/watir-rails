@@ -21,7 +21,6 @@ RAILS_SKIP_ARGUMENTS = %w[
   keeps
   listen
   namespace
-  prototype
   puma
   spring
   sprockets
@@ -42,6 +41,10 @@ task :create_dummy_app do
   skip_args = RAILS_SKIP_ARGUMENTS.map { |arg| "--skip-#{arg}" }
 
   raise "Cannot create dummy app" unless system("bundle", "exec", "rails", "new", app_path, *skip_args)
+
+  fixtures_path = File.expand_path("spec/fixtures/dummy", __dir__)
+
+  FileUtils.cp_r("#{fixtures_path}/.", app_path)
 end
 
 require "rspec/core/rake_task"

@@ -9,10 +9,12 @@ name: Run watir-rails CI
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.ruby-version == 'debug' }}
+    # ruby-3 it's not supported by selenium-webdriver yet
+    # See https://github.com/SeleniumHQ/selenium/issues/9001
+    continue-on-error: ${{ matrix.ruby-version == 'debug' || matrix.ruby-version == '3.0' }}
     strategy:
       matrix:
-        rails-version: ['3.0', '3.1', '3.2', '4.0', '4.1', '4.2', '5.0', '5.1', '5.2', '6.0', '6.1']
+        rails-version: ['3.1', '3.2', '4.0', '4.1', '4.2', '5.0', '5.1', '5.2', '6.0', '6.1']
         ruby-version: ['2.2', '2.3', '2.4', '2.5', '2.6', '2.7']
         include:
           # Only rails-6.1 supports ruby-3
@@ -47,10 +49,6 @@ jobs:
           # rails-3.1 fails with `circular argument reference - now`
           # in `ActiveSupport::TimeZone` on >= 2.7
           - { rails-version: '3.1', ruby-version: '2.7' }
-          # rails-3.0 requires BigDecimal.yaml_as (dropped in 2.5)
-          - { rails-version: '3.0', ruby-version: '2.7' }
-          - { rails-version: '3.0', ruby-version: '2.6' }
-          - { rails-version: '3.0', ruby-version: '2.5' }
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_${{ matrix.rails-version }}.gemfile
 

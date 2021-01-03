@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = ">= 2.2.0"
 
   gem.add_dependency "rack"
-  gem.add_dependency "rails", ">= 3"
+  gem.add_dependency "rails", ">= 3.1"
   gem.add_dependency "watir", ">= 6.0.0.beta4"
 
   gem.add_development_dependency "yard"

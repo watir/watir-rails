@@ -23,7 +23,7 @@ SimpleCov.start do
   add_filter %r{^/spec/}
 end
 
-require_relative "dummy/config/application"
+require_relative "dummy/config/environment"
 
 require "watir/rails"
 
