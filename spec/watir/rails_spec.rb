@@ -337,4 +337,49 @@ describe Watir::Rails do
       end
     end
   end
+
+  context '.url' do
+    subject(:url) { described_class.url(path) }
+
+    context 'when path is an absolute url' do
+      context 'when scheme is about:' do
+        let(:path) { 'about:mozilla' }
+
+        it { expect(url).to eq(path) }
+      end
+
+      context 'when scheme is data:' do
+        let(:path) { 'data:foobar' }
+
+        it { expect(url).to eq(path) }
+      end
+
+      context 'when scheme http:' do
+        let(:path) { 'http://watir.com/blog/' }
+
+        it { expect(url).to eq(path) }
+      end
+
+      context 'when https:' do
+        let(:path) { 'https://github.com/watir/watir-rails/' }
+
+        it { expect(url).to eq(path) }
+      end
+    end
+
+    context 'when path is a relative url' do
+      let(:path) { '/foo/bar?x=1&y[]=q&y[]=z#fragment' }
+      let(:expected_url) { "http://#{described_class.host}:#{described_class.port}#{path}" }
+
+      before { described_class.boot }
+
+      it { expect(url).to eq(expected_url) }
+
+      context 'and Watir::Rails.host includes username & password' do
+        before { described_class.host = 'watir:rails@localhost' }
+
+        it { expect(url).to eq(expected_url) }
+      end
+    end
+  end
 end

@@ -49,40 +49,13 @@ describe Watir::Rails::Browser do
 
   context '#goto' do
     let(:driver) { browser.driver }
+    let(:expected_url) { 'http://watir-rails.com:1234/some/path' }
 
-    before do
-      Watir::Rails.host = 'foo.com'
-      allow(Watir::Rails).to receive(:port).and_return(42)
-    end
+    before { allow(Watir::Rails).to receive(:url).with('/some/path').and_return(expected_url) }
 
-    it 'uses Rails for paths specified as an url' do
-      expect(driver).to receive(:to).with('http://foo.com:42/foo/bar')
-      browser.goto('/foo/bar')
-    end
-
-    it 'does not alter url with http:// scheme' do
-      expect(driver).to receive(:to).with('http://baz.org/lol')
-      browser.goto('http://baz.org/lol')
-    end
-
-    it 'does not alter url with https:// scheme' do
-      expect(driver).to receive(:to).with('https://baz.org/lol')
-      browser.goto('https://baz.org/lol')
-    end
-
-    it 'does not alter about:urls' do
-      expect(driver).to receive(:to).with('about:url')
-      browser.goto('about:url')
-    end
-
-    it 'does not alter data:urls' do
-      expect(driver).to receive(:to).with('data:url')
-      browser.goto('data:url')
-    end
-
-    it 'alters the unknown urls' do
-      expect(driver).to receive(:to).with('http://foo.com:42/xxx:yyy')
-      browser.goto('http://foo.com:42/xxx:yyy')
+    it 'goes to Watir::Rails.url' do
+      expect(driver).to receive(:to).with(expected_url)
+      browser.goto('/some/path')
     end
   end
 
