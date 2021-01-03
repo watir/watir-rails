@@ -8,6 +8,8 @@ require_relative 'rails/middleware'
 module Watir
   # Starts Rails application
   module Rails
+    BOOT_TIMEOUT = 60
+
     extend self
 
     attr_reader :port
@@ -115,10 +117,6 @@ module Watir
       @app_path ||= ::Rails.root.join('config.ru').to_s
     end
 
-    def boot_timeout
-      60
-    end
-
     def start_server
       @server_thread = Thread.new do
         Thread.current.abort_on_exception = true
@@ -127,7 +125,7 @@ module Watir
     end
 
     def wait_for_server
-      Timeout.timeout(boot_timeout) do
+      Timeout.timeout(BOOT_TIMEOUT) do
         loop do
           break if running?
 

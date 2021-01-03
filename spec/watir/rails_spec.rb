@@ -160,7 +160,7 @@ describe Watir::Rails do
     context 'when server will not boot during timeout' do
       let(:fake_server) { ->(_app, _localhost, _port) { loop { Thread.stop } } }
 
-      before { allow(described_class).to receive(:boot_timeout).and_return(0.01) }
+      before { stub_const("#{described_class}::BOOT_TIMEOUT", 0.01) }
 
       it 'raises Timeout::Error' do
         expect(described_class).not_to be_running
