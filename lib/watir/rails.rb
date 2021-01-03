@@ -20,11 +20,11 @@ module Watir
     #
     # @param [Integer] port port for the Rails up to run on. If omitted random port will be picked.
     def boot(port: nil)
-      return if @port && (port.to_i.zero? || @port == port) && running?
+      return if self.port && (port.to_i.zero? || self.port == port) && running?
 
-      @port = port.to_i.zero? ? find_available_port : port
+      self.port = port.to_i.zero? ? find_available_port : port
 
-      @middleware = Middleware.new(app)
+      self.middleware = Middleware.new(app)
 
       start_server
 
@@ -49,24 +49,24 @@ module Watir
     #
     # @return [Boolean] true if exceptions should be ignored, false otherwise.
     def ignore_exceptions?
-      if @ignore_exceptions.nil?
+      if ignore_exceptions.nil?
         if ::Rails.application.config.action_dispatch.show_exceptions
           warn '[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.'
-          @ignore_exceptions = true
+          self.ignore_exceptions = true
         end
       end
 
-      !!@ignore_exceptions
+      !!ignore_exceptions
     end
 
     # Check if Rails app under test is running.
     #
     # @return [Boolean] true when Rails app under test is running, false otherwise.
     def running?
-      return false if @server_thread.nil?
-      return false unless @server_thread.alive?
+      return false if server_thread.nil?
+      return false unless server_thread.alive?
 
-      res = Net::HTTP.start(localhost, @port, open_timeout: 1, read_timeout: 1) do |http|
+      res = Net::HTTP.start(localhost, port, open_timeout: 1, read_timeout: 1) do |http|
         http.get(Middleware::IDENTIFY_PATH)
       end
 
@@ -103,6 +103,9 @@ module Watir
 
     private
 
+    attr_writer :port, :middleware
+    attr_reader :ignore_exceptions, :server_thread
+
     def boot_timeout
       60
     end
@@ -110,7 +113,7 @@ module Watir
     def start_server
       @server_thread = Thread.new do
         Thread.current.abort_on_exception = true
-        server.call(@middleware, localhost, @port)
+        server.call(middleware, localhost, port)
       end
     end
 
@@ -119,7 +122,7 @@ module Watir
         loop do
           break if running?
 
-          @server_thread.run
+          server_thread.run
         end
       end
     rescue Timeout::Error

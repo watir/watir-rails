@@ -9,28 +9,32 @@ module Watir
       attr_accessor :error
 
       def initialize(app)
-        @app = app
-        @counter = Concurrent::AtomicFixnum.new(0)
+        self.app = app
+        self.counter = Concurrent::AtomicFixnum.new(0)
       end
 
       def pending_requests?
-        @counter.value > 0
+        counter.value > 0
       end
 
       def call(env)
-        return [200, {}, [@app.object_id.to_s]] if env['PATH_INFO'] == IDENTIFY_PATH
+        return [200, {}, [app.object_id.to_s]] if env['PATH_INFO'] == IDENTIFY_PATH
 
-        @counter.increment
+        counter.increment
 
         begin
-          @app.call(env)
+          app.call(env)
         rescue StandardError => e
-          @error = e
+          self.error = e
           raise
         ensure
-          @counter.decrement
+          counter.decrement
         end
       end
+
+      private
+
+      attr_accessor :app, :counter
     end
   end
 end
