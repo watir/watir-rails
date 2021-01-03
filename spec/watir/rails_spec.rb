@@ -9,7 +9,7 @@ describe Watir::Rails do
   before do
     allow(described_class).to receive(:warn)
     described_class.ignore_exceptions = nil
-    described_class.instance_eval { @middleware = @port = @server_thread = @host = @app = nil }
+    described_class.instance_eval { @middleware = @port = @server_thread = @localhost = @host = @app = nil }
   end
 
   after do
@@ -60,27 +60,48 @@ describe Watir::Rails do
 
   context ".server" do
     let(:server) do
-      ->(app, port) { Rack::Handler.get(:webrick).run(app, Port: port, AccessLog: [], Logger: Logger.new(nil)) }
+      ->(app, localhost, port) { Rack::Handler.get(:webrick).run(app, Host: localhost, Port: port, AccessLog: [], Logger: Logger.new(nil)) }
+    end
+    let(:localhost) { "127.0.0.13" }
+
+    before do
+      described_class.server = server
+      allow(Resolv).to receive(:getaddress).with("localhost").and_return(localhost)
     end
 
-    before { described_class.server = server }
-
     it "allows to customize server" do
-      expect(server).to receive(:call).with(Watir::Rails::Middleware, Integer).once.and_call_original
+      expect(server).to receive(:call).with(Watir::Rails::Middleware, localhost, Integer).once.and_call_original
 
       described_class.boot
     end
   end
 
   context ".host" do
-    it "@host if specified" do
+    it "returns @host if specified" do
       described_class.host = "my_host"
       expect(described_class.host).to eq("my_host")
     end
 
-    it "local_host if @host is not specified" do
-      described_class.host = nil
-      expect(described_class.host).to eq("127.0.0.1")
+    it "returns localhost if @host is not specified" do
+      expect(Resolv).to receive(:getaddress).with("localhost").and_return("127.0.0.13")
+      expect(described_class.host).to eq("127.0.0.13")
+    end
+
+    it "returns IPv6 with brackets if localhost is IPv6" do
+      expect(Resolv).to receive(:getaddress).with("localhost").and_return("::1")
+      expect(described_class.host).to eq("[::1]")
+    end
+  end
+
+  context ".localhost" do
+    it "returns resolved localhost" do
+      expect(Resolv).to receive(:getaddress).with("localhost").and_return("127.0.0.13")
+      expect(described_class.localhost).to eq("127.0.0.13")
+    end
+
+    it "returns IPv6 without brackets if localhost is IPv6" do
+      expect(Resolv).to receive(:getaddress).with("localhost").and_return("::1")
+      expect(described_class.localhost).to eq("::1")
     end
   end
 

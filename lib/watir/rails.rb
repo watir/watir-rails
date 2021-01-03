@@ -1,3 +1,4 @@
+require "resolv"
 require "watir"
 
 require "rails"
@@ -23,7 +24,7 @@ module Watir
         @middleware = Middleware.new(app)
 
         @server_thread = Thread.new do
-          server.call @middleware, @port
+          server.call @middleware, localhost, @port
         end
 
         Timeout.timeout(boot_timeout) { @server_thread.join(0.1) until running? }
@@ -32,11 +33,11 @@ module Watir
       raise Timeout::Error, "Rails Rack application timed out during boot"
     end
 
-    # Host for Rails app under test. Default is {.local_host}.
+    # Host for Rails app under test. Default is {.localhost}.
     #
     # @return [String] Host for Rails app under test.
     def host
-      @host || local_host
+      @host || URI::HTTP.build(host: localhost).host
     end
 
     # Set host for Rails app. Will be used by {Browser#goto} method.
@@ -48,9 +49,9 @@ module Watir
 
     # Local host for Rails app under test.
     #
-    # @return [String] Local host with the value of "127.0.0.1".
-    def local_host
-      "127.0.0.1"
+    # @return [String] Resolved `localhost` address
+    def localhost
+      @localhost ||= Resolv.getaddress("localhost")
     end
 
     # Error rescued by the middleware.
@@ -94,7 +95,7 @@ module Watir
     def running?
       return false if @server_thread && @server_thread.join(0)
 
-      res = Net::HTTP.start(local_host, @port) { |http| http.get('/__identify__') }
+      res = Net::HTTP.start(localhost, @port) { |http| http.get('/__identify__') }
 
       if res.is_a?(Net::HTTPSuccess) or res.is_a?(Net::HTTPRedirection)
         return res.body == @app.object_id.to_s
@@ -121,15 +122,15 @@ module Watir
     end
 
     def find_available_port
-      server = TCPServer.new(local_host, 0)
+      server = TCPServer.new(localhost, 0)
       server.addr[1]
     ensure
       server.close if server
     end
 
     def server
-      @server ||= lambda do |app, port|
-        Rack::Handler.default.run(app, Port: port, Silent: true, AccessLog: [], Logger: Logger.new(nil))
+      @server ||= lambda do |app, localhost, port|
+        Rack::Handler.default.run(app, Host: localhost, Port: port, Silent: true, AccessLog: [], Logger: Logger.new(nil))
       end
     end
   end
