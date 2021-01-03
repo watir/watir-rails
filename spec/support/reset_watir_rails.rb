@@ -1,4 +1,4 @@
-watir_rails_variables = %w[app localhost host ignore_exceptions middleware port server server_thread].freeze
+watir_rails_variables = %w[app app_path localhost host ignore_exceptions middleware port server server_thread].freeze
 
 def server_thread
   Watir::Rails.instance_variable_get(:@server_thread)

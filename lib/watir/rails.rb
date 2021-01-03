@@ -10,8 +10,8 @@ module Watir
   module Rails
     extend self
 
-    attr_reader :port, :middleware
-    attr_writer :ignore_exceptions, :server, :host
+    attr_reader :port
+    attr_writer :ignore_exceptions, :server, :host, :app_path
 
     delegate :error, :error=, :pending_requests?, to: :middleware
 
@@ -23,8 +23,6 @@ module Watir
       return if self.port && (port.to_i.zero? || self.port == port) && running?
 
       self.port = port.to_i.zero? ? find_available_port : port
-
-      self.middleware = Middleware.new(app)
 
       start_server
 
@@ -75,11 +73,18 @@ module Watir
       false
     end
 
+    def middleware
+      @middleware ||= Rack::Builder.app do
+        use Middleware
+        run Watir::Rails.app
+      end
+    end
+
     # Rails app under test.
     #
     # @return [Object] Rails Rack app.
     def app
-      @app ||= ::Rails.application
+      @app ||= Rack::Builder.parse_file(app_path).first
     end
 
     # Converts rails path into accessible Watir::Rails URL
@@ -103,8 +108,12 @@ module Watir
 
     private
 
-    attr_writer :port, :middleware
+    attr_writer :port
     attr_reader :ignore_exceptions, :server_thread
+
+    def app_path
+      @app_path ||= ::Rails.root.join('config.ru').to_s
+    end
 
     def boot_timeout
       60
