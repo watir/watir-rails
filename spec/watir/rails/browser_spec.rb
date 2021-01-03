@@ -68,5 +68,19 @@ describe Watir::Rails::Browser do
       browser.goto('/tests')
       expect(browser.text).to eq('Hello world!')
     end
+
+    context 'with additional middleware' do
+      before { Watir::Rails.app_path = ::Rails.root.join('config.auth.ru').to_s }
+
+      it 'uses middleware in config.ru' do
+        browser.goto('/tests')
+        expect(browser.alert).to be_present
+        browser.alert.close
+        Watir::Rails.host = "watir:rails@#{Watir::Rails.host}"
+        browser.goto('/tests')
+        expect(browser.alert).not_to be_present
+        expect(browser.text).to eq('Hello world!')
+      end
+    end
   end
 end
