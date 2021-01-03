@@ -1,3 +1,5 @@
+require 'watir'
+
 module Watir
   module Rails
     # Watir::Browser extension to use Watir::Rails application run by
