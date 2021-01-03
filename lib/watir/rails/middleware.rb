@@ -4,6 +4,8 @@ module Watir
   module Rails
     # @private
     class Middleware
+      IDENTIFY_PATH = '/__identify__'.freeze
+
       attr_accessor :error
 
       def initialize(app)
@@ -16,7 +18,7 @@ module Watir
       end
 
       def call(env)
-        return [200, {}, [@app.object_id.to_s]] if env['PATH_INFO'] == '/__identify__'
+        return [200, {}, [@app.object_id.to_s]] if env['PATH_INFO'] == IDENTIFY_PATH
 
         @counter.increment
 

@@ -67,7 +67,7 @@ module Watir
       return false unless @server_thread.alive?
 
       res = Net::HTTP.start(localhost, @port, open_timeout: 1, read_timeout: 1) do |http|
-        http.get('/__identify__')
+        http.get(Middleware::IDENTIFY_PATH)
       end
 
       res.is_a?(Net::HTTPOK) && res.body == app.object_id.to_s
