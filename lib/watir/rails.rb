@@ -1,5 +1,4 @@
 require 'resolv'
-require 'watir'
 
 require 'rails'
 
