@@ -72,9 +72,29 @@ jobs:
           parallel: true
           flag-name: ruby-${{ matrix.ruby-version }}_rails-${{ matrix.rails-version }}
 
+  test_frameworks:
+    name: Test different frameworks
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        framework: ['hanami', 'sinatra']
+
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.framework }}.gemfile
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+          bundler-cache: true
+
+      - run: bundle exec rake
+
   coveralls:
     name: Send coverage results to Coveralls
-    needs: test_rails_versions
+    needs: [test_rails_versions, test_frameworks]
     runs-on: ubuntu-latest
     steps:
     - uses: coverallsapp/github-action@master

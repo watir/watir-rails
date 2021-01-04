@@ -17,7 +17,6 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 2.2.0'
 
   gem.add_dependency 'rack'
-  gem.add_dependency 'rails', '>= 3.1'
   # Rails dependency since 5.0
   gem.add_dependency 'concurrent-ruby', '>= 1.0'
   gem.add_dependency 'watir', '>= 6.0.0.beta4'

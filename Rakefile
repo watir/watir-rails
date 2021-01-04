@@ -34,17 +34,45 @@ RAILS_SKIP_ARGUMENTS = %w[
 
 desc 'Creates dummy app for testing'
 task :create_dummy_app do
-  app_path = File.expand_path('spec/dummy', __dir__)
+  framework = case File.basename(ENV.fetch('BUNDLE_GEMFILE', '')).to_s.sub(/\.gemfile\z/, '')
+              when 'hanami' then 'hanami'
+              when 'sinatra' then 'sinatra'
+              else 'rails'
+              end
 
-  FileUtils.rm_rf(app_path)
+  Rake::Task["create_dummy_app:#{framework}"].invoke
+end
 
-  skip_args = RAILS_SKIP_ARGUMENTS.map { |arg| "--skip-#{arg}" }
+namespace :create_dummy_app do
+  desc 'Creates dummy Hanami app for testing'
+  task :hanami do
+    app_path = File.expand_path('dummy', __dir__)
 
-  raise 'Cannot create dummy app' unless system('bundle', 'exec', 'rails', 'new', app_path, *skip_args)
+    FileUtils.rm_rf(app_path)
 
-  fixtures_path = File.expand_path('spec/fixtures/dummy', __dir__)
+    raise 'Cannot create dummy app' unless system('bundle', 'exec', 'hanami', 'new', 'dummy')
 
-  FileUtils.cp_r("#{fixtures_path}/.", app_path)
+    fixtures_path = File.expand_path('spec/fixtures/hanami_dummy', __dir__)
+
+    FileUtils.cp_r("#{fixtures_path}/.", app_path)
+  end
+
+  desc 'Creates dummy Rails app for testing'
+  task :rails do
+    app_path = File.expand_path('dummy', __dir__)
+
+    FileUtils.rm_rf(app_path)
+
+    skip_args = RAILS_SKIP_ARGUMENTS.map { |arg| "--skip-#{arg}" }
+
+    raise 'Cannot create dummy app' unless system('bundle', 'exec', 'rails', 'new', app_path, *skip_args)
+
+    fixtures_path = File.expand_path('spec/fixtures/rails_dummy', __dir__)
+
+    FileUtils.cp_r("#{fixtures_path}/.", app_path)
+  end
+
+  task :sinatra
 end
 
 require 'rspec/core/rake_task'

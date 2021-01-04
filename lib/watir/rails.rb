@@ -1,6 +1,6 @@
+require 'forwardable'
 require 'resolv'
-
-require 'rails'
+require 'rack'
 
 require_relative 'rails/browser'
 require_relative 'rails/middleware'
@@ -10,12 +10,13 @@ module Watir
   module Rails
     BOOT_TIMEOUT = 60
 
+    extend Forwardable
     extend self
 
     attr_reader :port
     attr_writer :ignore_exceptions, :server, :host, :app_path
 
-    delegate :error, :error=, :pending_requests?, to: :middleware
+    def_delegators :middleware, :error, :error=, :pending_requests?
 
     # Start the Rails server for tests.
     # Will be called automatically by Watir::Rails::Browser#initialize.
@@ -50,7 +51,7 @@ module Watir
     # @return [Boolean] true if exceptions should be ignored, false otherwise.
     def ignore_exceptions?
       if ignore_exceptions.nil?
-        if ::Rails.application.config.action_dispatch.show_exceptions
+        if defined?(::Rails) && ::Rails.application.config.action_dispatch.show_exceptions
           warn '[WARN] "action_dispatch.show_exceptions" is set to "true", disabling watir-rails exception catcher.'
           self.ignore_exceptions = true
         end
@@ -86,7 +87,11 @@ module Watir
     #
     # @return [Object] Rails Rack app.
     def app
+      raise ArgumentError, 'app_path is nil, cannot create Rake app' if app_path.nil?
+
       @app ||= Rack::Builder.parse_file(app_path).first
+    rescue Errno::ENOENT
+      raise ArgumentError, "'#{app_path}' path to Rack app does not exist" unless File.exist?(app_path)
     end
 
     # Converts rails path into accessible Watir::Rails URL
@@ -114,7 +119,7 @@ module Watir
     attr_reader :ignore_exceptions, :server_thread
 
     def app_path
-      @app_path ||= ::Rails.root.join('config.ru').to_s
+      @app_path ||= defined?(::Rails) && ::Rails.root.join('config.ru').to_s
     end
 
     def start_server

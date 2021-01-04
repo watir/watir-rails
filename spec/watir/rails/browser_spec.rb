@@ -13,7 +13,7 @@ describe Watir::Rails::Browser do
   end
 
   context 'after_hooks' do
-    before { ::Rails.application.env_config['action_dispatch.show_exceptions'] = false }
+    before { ::Rails.application.env_config['action_dispatch.show_exceptions'] = false if defined?(::Rails) }
 
     it 'does not add Exception hook when exceptions are ignored' do
       Watir::Rails.ignore_exceptions = true
@@ -70,7 +70,7 @@ describe Watir::Rails::Browser do
     end
 
     context 'with additional middleware' do
-      before { Watir::Rails.app_path = ::Rails.root.join('config.auth.ru').to_s }
+      before { Watir::Rails.app_path = "#{Watir::Rails.__send__(:app_path).sub(/\.ru\z/, '')}.auth.ru" }
 
       it 'uses middleware in config.ru' do
         browser.goto('/tests')

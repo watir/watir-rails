@@ -6,6 +6,9 @@ gem "simplecov", require: false
 gem "simplecov-lcov", require: false
 gem "ffi", platforms: [:mingw, :x64_mingw, :mswin]
 gem "tzinfo-data", platforms: [:mingw, :x64_mingw, :mswin]
+gem "hanami", group: :hanami
+gem "rails", group: :rails
+gem "sinatra", group: :sinatra
 gem "falcon"
 
 gemspec path: "../"

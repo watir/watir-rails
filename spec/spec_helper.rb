@@ -23,9 +23,17 @@ SimpleCov.start do
   add_filter %r{^/spec/}
 end
 
-require_relative 'dummy/config/environment'
-
 require 'watir/rails'
+
+framework = case File.basename(ENV.fetch('BUNDLE_GEMFILE', '')).sub(/\.gemfile\z/, '')
+            when 'hanami' then 'hanami'
+            when 'sinatra' then 'sinatra'
+            else 'rails'
+            end
+
+Bundler.require(framework)
+
+require_relative '../dummy/config/environment' if framework == 'rails'
 
 # Make sure that dummy selenium-webdriver driver is loaded in specs
 require 'support/selenium_webdriver'
@@ -35,4 +43,15 @@ require 'support/reset_watir_rails'
 RSpec.configure do |c|
   c.color = true
   c.order = :random
+
+  c.filter_run_excluding rails: framework != 'rails'
+
+  if framework != 'rails'
+    config_path = case framework
+                  when 'hanami' then '../dummy/config.ru'
+                  when 'sinatra' then './fixtures/sinatra_app'
+                  else raise 'No framework under test found'
+                  end
+    c.before { Watir::Rails.app_path = File.expand_path(config_path, __dir__) }
+  end
 end

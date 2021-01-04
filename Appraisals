@@ -15,3 +15,10 @@ SERVER_NAMES.each do |server_name|
     gem server_name
   end
 end
+
+FRAMEWORK_NAMES = %w[hanami sinatra].freeze
+
+FRAMEWORK_NAMES.each do |framework_name|
+  appraise framework_name do
+  end
+end
