@@ -3,7 +3,7 @@ AllCops:
   Exclude:
     - vendor/**/*
     - gemfiles/**/*
-    - spec/dummy/**/*
+    - dummy/**/*
 
 Metrics/LineLength:
   Max: 120

@@ -238,7 +238,7 @@ describe Watir::Rails do
       expect(described_class).not_to be_ignore_exceptions
     end
 
-    it 'true if Rails.action_dispatch.show_exceptions is set to true' do
+    it 'true if Rails.action_dispatch.show_exceptions is set to true', rails: true do
       described_class.ignore_exceptions = nil
       ::Rails.application.config.action_dispatch.show_exceptions = true
 
@@ -247,7 +247,7 @@ describe Watir::Rails do
       expect(described_class).to be_ignore_exceptions
     end
 
-    it 'true if Rails.action_dispatch.show_exceptions is set to false' do
+    it 'true if Rails.action_dispatch.show_exceptions is set to false', rails: true do
       described_class.ignore_exceptions = nil
       ::Rails.application.config.action_dispatch.show_exceptions = false
 
@@ -380,6 +380,27 @@ describe Watir::Rails do
 
         it { expect(url).to eq(expected_url) }
       end
+    end
+  end
+
+  context '.app' do
+    subject(:app) { described_class.app }
+
+    context 'when .app_path is not nil' do
+      it { expect(app).to respond_to(:call) }
+    end
+
+    context 'when .app_path cannot be found' do
+      let(:app_path) { '/does/not/exist/config.ru' }
+      before { described_class.app_path = app_path }
+
+      it { expect { app }.to raise_error(ArgumentError, "'#{app_path}' path to Rack app does not exist") }
+    end
+
+    context 'when .app_path is nil', rails: false do
+      before { described_class.app_path = nil }
+
+      it { expect { app }.to raise_error(ArgumentError, 'app_path is nil, cannot create Rake app') }
     end
   end
 end
