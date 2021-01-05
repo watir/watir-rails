@@ -9,6 +9,13 @@ if ENV["CI"]
   end
 
   SimpleCov.formatter = SimpleCov::Formatter::LcovFormatter
+
+  # HACK: https://github.com/fortissimo1997/simplecov-lcov/pull/25
+  unless SimpleCov.respond_to?(:branch_coverage?)
+    def SimpleCov.branch_coverage?
+      false
+    end
+  end
 end
 
 SimpleCov.start

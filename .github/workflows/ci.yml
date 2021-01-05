@@ -12,14 +12,28 @@ jobs:
     continue-on-error: ${{ matrix.ruby-version == 'debug' }}
     strategy:
       matrix:
-        rails-version: ['3.2', '4.2', '6.0']
-        ruby-version: ['2.6.3', 'debug']
+        rails-version: ['3.0', '3.1', '3.2', '4.0', '4.1', '4.2', '5.0', '5.1', '5.2', '6.0', '6.1']
+        ruby-version: ['2.2', '2.3', '2.4', '2.5', '2.6', '2.7']
+        include:
+          # Only rails-6.1 supports ruby-3
+          - { rails-version: '6.1', ruby-version: '3.0' }
+          - { rails-version: '6.1', ruby-version: 'debug' }
         exclude:
-          # rails-4.2 requires BigDecimal.new (dropped in ruby-2.7)
-          - { rails-version: '4.2', ruby-version: 'debug' }
-          # The issue on rails-3.2 + head is json-1.8.6 compat (simplecov
-          # uses it), we could potentially workaround it using, for example, Oj
-          - { rails-version: '3.2', ruby-version: 'debug' }
+          # rails-6.x requires ruby >= 2.5
+          - { rails-version: '6.1', ruby-version: '2.4' }
+          - { rails-version: '6.1', ruby-version: '2.3' }
+          - { rails-version: '6.1', ruby-version: '2.2' }
+          - { rails-version: '6.0', ruby-version: '2.4' }
+          - { rails-version: '6.0', ruby-version: '2.3' }
+          - { rails-version: '6.0', ruby-version: '2.2' }
+          # rails-4.x requires BigDecimal.new (dropped in ruby-2.7)
+          - { rails-version: '4.2', ruby-version: '2.7' }
+          - { rails-version: '4.1', ruby-version: '2.7' }
+          - { rails-version: '4.0', ruby-version: '2.7' }
+          # The issue on rails-3.[0-2] + head is json-1.8.6 compat, we could
+          # potentially workaround it using, for example, Oj
+          - { rails-version: '3.1', ruby-version: '2.7' }
+          - { rails-version: '3.0', ruby-version: '2.7' }
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_${{ matrix.rails-version }}.gemfile
 
