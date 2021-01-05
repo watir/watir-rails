@@ -1,3 +1,4 @@
+just a test
 # Watir::Rails
 [![Gem Version](https://badge.fury.io/rb/watir-rails.png)](http://badge.fury.io/rb/watir-rails)
 [![Build Status](https://api.travis-ci.org/watir/watir-rails.png)](http://travis-ci.org/watir/watir-rails)
