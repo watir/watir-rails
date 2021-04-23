@@ -2,4 +2,5 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "coveralls", require: false
+gem "simplecov", require: false
+gem "simplecov-lcov", require: false

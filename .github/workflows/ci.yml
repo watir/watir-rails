@@ -1,0 +1,53 @@
+name: Run watir-rails CI
+
+'on':
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    continue-on-error: ${{ matrix.ruby-version == 'debug' }}
+    strategy:
+      matrix:
+        BUNDLE_GEMFILE: [gemfiles/Gemfile.rails-3.x, gemfiles/Gemfile.rails-4.x, Gemfile]
+        ruby-version: [2.6.3, debug]
+        exclude:
+          # rails-4.2 requires BigDecimal.new (dropped in ruby-2.7)
+          - { BUNDLE_GEMFILE: gemfiles/Gemfile.rails-4.x, ruby-version: debug }
+          # The issue on rails-3.2 + head is json-1.8.6 compat (simplecov
+          # uses it), we could potentially workaround it using, for example, Oj
+          - { BUNDLE_GEMFILE: gemfiles/Gemfile.rails-3.x, ruby-version: debug }
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/${{ matrix.BUNDLE_GEMFILE }}
+      LCOV_REPORT_PATH: './coverage/lcov.info'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          # rails < 5 doesn't support bundler-2
+          bundler: 1
+          bundler-cache: true
+
+      - run: bundle exec rake
+
+      - uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: ${{ env.LCOV_REPORT_PATH }}
+          parallel: true
+          flag-name: ruby-${{ matrix.ruby-version }}_gemfile-${{ matrix.BUNDLE_GEMFILE }}
+
+  coveralls:
+    needs: test
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true

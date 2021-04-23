@@ -2,7 +2,6 @@ rvm:
   - 2.6.3
   - ruby-head
 gemfile:
-  - gemfiles/Gemfile.rails-2.x
   - gemfiles/Gemfile.rails-3.x
   - gemfiles/Gemfile.rails-4.x
   - Gemfile
@@ -12,4 +11,3 @@ notifications:
 matrix:
   allow_failures:
     - rvm: ruby-head
-
