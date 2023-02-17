@@ -24,6 +24,21 @@ describe Watir::Browser do
       expect_any_instance_of(Watir::Browser).to receive(:add_exception_hook)
       Watir::Browser.new
     end
+
+    context 'when boot was already called' do
+      let(:app) { -> (_env) { [200, {}, 'OK'] } }
+      before do
+        Watir::Rails.instance_variable_set(:@app, app)
+        Watir::Rails.boot
+      end
+
+      it 'does not start new server thread' do
+        middleware = Watir::Rails.middleware
+
+        Watir::Browser.new
+        expect(middleware).to eq(Watir::Rails.middleware)
+      end
+    end
   end
 
   context "#goto" do

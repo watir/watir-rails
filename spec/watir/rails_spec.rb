@@ -7,6 +7,8 @@ describe Watir::Rails do
     described_class.instance_eval { @middleware = @port = @server_thread = @host = @app = nil }
   end
 
+  let(:thread) { described_class.instance_variable_get(:@server_thread) }
+
   context ".boot" do
     it "starts the server unless already running" do
       server = ->(app, port) {}
@@ -16,7 +18,8 @@ describe Watir::Rails do
       expect(server).to receive(:call).once
 
       described_class.boot
-      wait_until_server_started
+
+      thread.join(10) || raise("Server thread not finished")
     end
 
     it "does nothing if server is already running" do
@@ -39,22 +42,21 @@ describe Watir::Rails do
         described_class.boot
       }.to raise_error(Timeout::Error)
     end
-
-    def wait_until_server_started
-      Timeout.timeout(10) { sleep 0.1 while described_class.instance_variable_get(:@server_thread).alive? }
-    end
   end
 
   context ".server" do
+    let(:server) { ->(app, port) {} }
+
     it "allows to customize server" do
       allow(described_class).to receive_messages(app: double("app"), find_available_port: 42)
       allow(described_class).to receive(:running?).twice.and_return(false, true)
 
-      server = ->(app, port) {}
       described_class.server = server
       expect(server).to receive(:call)
 
       described_class.boot
+
+      thread.join(10) || raise("Server thread not finished")
     end
   end
 

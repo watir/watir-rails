@@ -1,7 +1,11 @@
+### Unreleased
+
+* Make `Watir::Rails.boot` ise previously selected port in subsequent calls. PR #34
+
 ### 2.2.3 - 2021/04/16
 
 * Fix a possible initialization problem with Watir 7.0.0+. See #32.
- 
+
 ### 2.2.2 - 2020/06/04
 
 * Fix a situation where checking if server is running without using specified port. PR #27 by Stefan Rotariu.
