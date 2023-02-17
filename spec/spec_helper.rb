@@ -22,4 +22,11 @@ require "watir/rails"
 RSpec.configure do |c|
   c.color = true
   c.order = :random
+
+  c.after do
+    described_class.instance_variable_set(:@port, nil)
+    described_class.instance_variable_set(:@server_thread, nil)
+    described_class.instance_variable_set(:@server, nil)
+    described_class.instance_variable_set(:@app, nil)
+  end
 end
