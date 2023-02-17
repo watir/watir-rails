@@ -15,10 +15,10 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.license       = "MIT"
   gem.version       = Watir::Rails::VERSION
-  gem.required_ruby_version = ">= 2.4.0"
+  gem.required_ruby_version = ">= 3.0.0"
 
   gem.add_dependency "rack"
-  gem.add_dependency "rails", ">= 3"
+  gem.add_dependency "rails", ">= 6"
   gem.add_dependency "watir", ">= 6.0.0.beta4"
 
   gem.add_development_dependency "yard"
