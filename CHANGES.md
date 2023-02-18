@@ -1,6 +1,6 @@
-### Unreleased
+### 2.3.0 - 2023/02/18
 
-* Make `Watir::Rails.boot` ise previously selected port in subsequent calls. PR #34
+* Make `Watir::Rails.boot` use previously selected port in subsequent calls. PR #34 by Bartek Bulat.
 
 ### 2.2.3 - 2021/04/16
 
