@@ -146,8 +146,14 @@ module Watir
           rescue LoadError
           end
 
-          require 'rack/handler/webrick'
-          Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
+          begin
+            require 'rack/handler/webrick'
+            return Rack::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
+          rescue LoadError
+          end
+
+          require 'rackup/handler/webrick'
+          Rackup::Handler::WEBrick.run(app, :Port => port, :AccessLog => [], :Logger => WEBrick::Log::new(nil, 0))
         end
       end
     end
