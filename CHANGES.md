@@ -1,3 +1,7 @@
+### 2.4.0 - 2025/10/03
+
+* Support Webrick for Ruby 3.0+. PR #37 by Norbert Szivós.
+
 ### 2.3.0 - 2023/02/18
 
 * Make `Watir::Rails.boot` use previously selected port in subsequent calls. PR #34 by Bartek Bulat.
