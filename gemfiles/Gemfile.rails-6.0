@@ -4,4 +4,4 @@ gemspec path: ".."
 
 gem "simplecov", require: false
 gem "simplecov-lcov", require: false
-gem "rails", "~> 4.0"
+gem "rails", "~> 6.0.0"
